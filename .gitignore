@@ -1,0 +1,69 @@
+# 🔹 Node / PNPM
+node_modules/
+.pnpm-debug.log*
+.npm/
+.pnpm-store/
+
+# 🔹 Build
+dist/
+build/
+*.tsbuildinfo
+
+# 🔹 Environment (⚠️ Datos sensibles)
+.env
+.env.*
+!.env.example
+
+# 🔹 Prisma
+prisma/*.db
+prisma/migrations/dev.db
+# Sólo ignorar las migraciones generadas automáticamente si querés control manual
+# prisma/migrations/
+
+# 🔹 Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+debug.log
+
+# 🔹 IDE / OS
+.vscode/
+.idea/
+*.swp
+.DS_Store
+Thumbs.db
+
+# 🔹 Uploaded / temp files (si usas buffers locales antes de Cloudinary/S3)
+uploads/
+tmp/
+*.tmp
+
+# 🔹 Coverage
+coverage/
+*.lcov
+
+# 🔹 Cache
+.cache/
+.sass-cache/
+.eslintcache
+stylelintcache
+.cache-loader/
+
+# 🔹 Tests snapshots
+*.snap
+
+# 🔹 Redis / Elastic / Docker bind mounts (si se generan en local)
+*.rdb
+data/
+docker-data/
+
+# 🔹 SSL Certificates (si generas local)
+*.pem
+*.key
+*.crt
+
+# 🔹 Stripe CLI Cache (si usas stripe listen)
+.stripe/
