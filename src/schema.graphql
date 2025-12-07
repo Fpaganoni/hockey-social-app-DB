@@ -1,0 +1,63 @@
+type User {
+  id: ID!
+  email: String!
+  username: String!
+  role: String!
+  createdAt: String!
+}
+
+type Club {
+  id: ID!
+  name: String!
+  location: String
+}
+
+type Team {
+  id: ID!
+  name: String!
+  category: String!
+}
+
+type ClubMember {
+  id: ID!
+}
+
+type Service {
+  id: ID!
+  title: String!
+  description: String!
+  priceAmount: Float
+}
+
+type PaymentIntent {
+  id: ID!
+  clientSecret: String
+}
+
+type Query {
+  clubs: [Club!]!
+  me(id: String!): User
+  teamsByClub(clubId: String!): [Team!]!
+  services: [Service!]!
+}
+
+type Mutation {
+  register(email: String!, username: String!, password: String!): String!
+  login(email: String!, password: String!): String!
+  createClub(name: String!, location: String!): Club!
+  createTeam(clubId: String!, name: String!, category: String!): Team!
+  invitePlayerToClub(
+    clubId: String!
+    userId: String!
+    invitedBy: String!
+  ): ClubMember!
+  acceptMembership(membershipId: String!): ClubMember!
+  uploadAvatar(userId: String!, base64: String!): Boolean!
+  createService(
+    title: String!
+    description: String!
+    providerId: String!
+    priceAmount: Float!
+  ): Service!
+  createPaymentIntent(amount: Float!, currency: String): PaymentIntent!
+}

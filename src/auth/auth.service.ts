@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
-import { PrismaService } from '../prisma.service';
-import * as bcrypt from 'bcrypt';
+import { Injectable } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
+import { PrismaService } from "../prisma.service";
+import * as bcrypt from "bcrypt";
 
 @Injectable()
 export class AuthService {
@@ -21,9 +21,30 @@ export class AuthService {
   }
 
   async oauthLogin(profile: { email: string; displayName?: string }) {
-    let user = await this.prisma.user.findUnique({ where: { email: profile.email } });
+    let user = await this.prisma.user.findUnique({
+      where: { email: profile.email },
+    });
     if (!user) {
-      user = await this.prisma.user.create({ data: { email: profile.email, username: profile.email.split('@')[0] } });
+      // Generar username único basado en el email
+      let baseUsername = profile.email.split("@")[0];
+      let username = baseUsername;
+      let counter = 1;
+
+      // Si el username ya existe, agregar un sufijo numérico
+      while (await this.prisma.user.findUnique({ where: { username } })) {
+        username = `${baseUsername}${counter}`;
+        counter++;
+      }
+
+      user = await this.prisma.user.create({
+        data: {
+          email: profile.email,
+          username,
+          profile: profile.displayName
+            ? { create: { displayName: profile.displayName } }
+            : undefined,
+        },
+      });
     }
     return this.login(user);
   }
