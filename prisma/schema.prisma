@@ -8,17 +8,23 @@ datasource db {
 }
 
 model User {
-  id                String        @id @default(uuid())
-  email             String        @unique
-  username          String        @unique
+  id                String          @id @default(uuid())
+  email             String          @unique
+  username          String          @unique
   password          String?
-  role              Role          @default(PLAYER)
+  role              Role            @default(PLAYER)
+  isVerified        Boolean         @default(false)
   profile           Profile?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
   clubs             ClubMember[]
-  services          Service[]
-  invitationsSent   ClubMember[]  @relation("InvitedBy")
+  invitationsSent   ClubMember[]    @relation("InvitedBy")
+  
+  // Social features
+  comments          Comment[]
+  likes             Like[]
+  conversations     Conversation[]  @relation("ConversationParticipants")
+  messagesSent      Message[]
 }
 
 model Profile {
@@ -33,13 +39,17 @@ model Profile {
 }
 
 model Club {
-  id        String       @id @default(uuid())
-  name      String
-  location  String?
-  teams     Team[]
-  members   ClubMember[]
-  createdAt DateTime     @default(now())
-  updatedAt DateTime     @updatedAt
+  id                String            @id @default(uuid())
+  name              String
+  location          String?
+  isVerified        Boolean           @default(false)
+  teams             Team[]
+  members           ClubMember[]
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  // Social features
+  jobOpportunities  JobOpportunity[]
 
   @@index([name])
 }
@@ -75,16 +85,107 @@ model ClubMember {
   @@index([clubId, status])
 }
 
-model Service {
-  id          String   @id @default(uuid())
-  title       String
-  description String
-  provider    User     @relation(fields: [providerId], references: [id], onDelete: Cascade)
-  providerId  String
-  priceAmount Float?
-  currency    Currency?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+// Social Network Models
+
+model Post {
+  id          String      @id @default(uuid())
+  content     String      @db.Text
+  imageUrl    String      // MANDATORY
+  authorType  AuthorType  // USER or CLUB
+  authorId    String      // ID without FK constraint
+  
+  comments    Comment[]
+  likes       Like[]
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  @@index([authorType, authorId])
+  @@index([createdAt])
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String   @db.Text
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  
+  @@index([postId])
+  @@index([authorId])
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  postId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  createdAt DateTime @default(now())
+  
+  @@unique([postId, userId])
+  @@index([postId])
+  @@index([userId])
+}
+
+model Follow {
+  id             String       @id @default(uuid())
+  followerType   FollowerType
+  followerId     String
+  followingType  FollowerType
+  followingId    String
+  createdAt      DateTime     @default(now())
+  
+  @@unique([followerType, followerId, followingType, followingId])
+  @@index([followerType, followerId])
+  @@index([followingType, followingId])
+}
+
+model JobOpportunity {
+  id            String       @id @default(uuid())
+  title         String
+  description   String       @db.Text
+  positionType  PositionType
+  club          Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  clubId        String
+  country       String
+  city          String
+  salary        Float?
+  currency      Currency?
+  benefits      String?      @db.Text
+  status        JobStatus    @default(OPEN)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  
+  @@index([clubId])
+  @@index([status, positionType])
+  @@index([country, city])
+}
+
+model Conversation {
+  id           String    @id @default(uuid())
+  participants User[]    @relation("ConversationParticipants")
+  messages     Message[]
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  
+  @@index([updatedAt])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  content        String       @db.Text
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  conversationId String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderId       String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  
+  @@index([conversationId])
+  @@index([senderId])
 }
 
 enum Role {
@@ -114,4 +215,27 @@ enum Currency {
   AUD
   JPY
   ARS
+}
+
+enum AuthorType {
+  USER
+  CLUB
+}
+
+enum FollowerType {
+  USER
+  CLUB
+}
+
+enum PositionType {
+  PLAYER
+  COACH
+  STAFF
+  OTHER
+}
+
+enum JobStatus {
+  OPEN
+  CLOSED
+  FILLED
 }
