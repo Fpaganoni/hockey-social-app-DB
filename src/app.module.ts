@@ -8,6 +8,10 @@ import { TeamsModule } from "./teams/teams.module";
 import { NotificationsModule } from "./notifications/notifications.module";
 import { SearchModule } from "./search/search.module";
 import { PaymentsModule } from "./payments/payments.module";
+import { PostsModule } from "./posts/posts.module";
+import { FollowModule } from "./follow/follow.module";
+import { JobsModule } from "./jobs/jobs.module";
+import { MessagingModule } from "./messaging/messaging.module";
 
 @Module({
   imports: [
@@ -19,6 +23,10 @@ import { PaymentsModule } from "./payments/payments.module";
     NotificationsModule,
     SearchModule,
     PaymentsModule,
+    PostsModule,
+    FollowModule,
+    JobsModule,
+    MessagingModule,
   ],
   providers: [PrismaService],
 })

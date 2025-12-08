@@ -35,4 +35,27 @@ export class UsersService {
     });
     return this.findById(userId);
   }
+
+  async findAll() {
+    return this.prisma.user.findMany({
+      include: {
+        profile: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  async findByRole(role: string) {
+    return this.prisma.user.findMany({
+      where: { role: role as any },
+      include: {
+        profile: true,
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
 }

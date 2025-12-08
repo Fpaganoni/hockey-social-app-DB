@@ -63,4 +63,24 @@ export class UsersResolver {
   async me(@Args("id") id: string) {
     return this.usersService.findById(id);
   }
+
+  @Query(() => [Object])
+  async users() {
+    return this.usersService.findAll();
+  }
+
+  @Query(() => Object, { nullable: true })
+  async user(@Args("id") id: string) {
+    return this.usersService.findById(id);
+  }
+
+  @Query(() => [Object])
+  async players() {
+    return this.usersService.findByRole("PLAYER");
+  }
+
+  @Query(() => [Object])
+  async coaches() {
+    return this.usersService.findByRole("COACH");
+  }
 }

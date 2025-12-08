@@ -3,13 +3,23 @@ type User {
   email: String!
   username: String!
   role: String!
+  isVerified: Boolean!
+  profile: Profile
   createdAt: String!
+}
+
+type Profile {
+  id: ID!
+  displayName: String
+  bio: String
+  avatarUrl: String
 }
 
 type Club {
   id: ID!
   name: String!
   location: String
+  isVerified: Boolean!
 }
 
 type Team {
@@ -20,13 +30,77 @@ type Team {
 
 type ClubMember {
   id: ID!
+  club: Club!
+  user: User!
+  roleInClub: String!
+  status: String!
 }
 
-type Service {
+type Post {
+  id: ID!
+  content: String!
+  imageUrl: String!
+  authorType: String!
+  authorId: String!
+  author: User
+  clubAuthor: Club
+  comments: [Comment!]!
+  likes: [Like!]!
+  likesCount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  author: User!
+  createdAt: String!
+}
+
+type Like {
+  id: ID!
+  user: User!
+  createdAt: String!
+}
+
+type Follow {
+  id: ID!
+  followerType: String!
+  followerId: String!
+  followingType: String!
+  followingId: String!
+  createdAt: String!
+}
+
+type JobOpportunity {
   id: ID!
   title: String!
   description: String!
-  priceAmount: Float
+  positionType: String!
+  club: Club!
+  country: String!
+  city: String!
+  salary: Float
+  currency: String
+  benefits: String
+  status: String!
+  createdAt: String!
+}
+
+type Conversation {
+  id: ID!
+  participants: [User!]!
+  messages: [Message!]!
+  updatedAt: String!
+}
+
+type Message {
+  id: ID!
+  content: String!
+  sender: User!
+  isRead: Boolean!
+  createdAt: String!
 }
 
 type PaymentIntent {
@@ -35,15 +109,54 @@ type PaymentIntent {
 }
 
 type Query {
-  clubs: [Club!]!
+  # Users
+  users: [User!]!
+  user(id: String!): User
   me(id: String!): User
+  players: [User!]!
+  coaches: [User!]!
+
+  # Clubs & Teams
+  clubs: [Club!]!
   teamsByClub(clubId: String!): [Team!]!
-  services: [Service!]!
+
+  # Posts (Social Feed)
+  posts(limit: Int, offset: Int): [Post!]!
+  post(id: String!): Post
+  postsByUser(userId: String!): [Post!]!
+  postsByClub(clubId: String!): [Post!]!
+
+  # Comments
+  comments(postId: String!): [Comment!]!
+
+  # Follow
+  followers(entityType: String!, entityId: String!): [Follow!]!
+  following(entityType: String!, entityId: String!): [Follow!]!
+  followersCount(entityType: String!, entityId: String!): Int!
+  followingCount(entityType: String!, entityId: String!): Int!
+
+  # Job Opportunities
+  jobOpportunities(
+    positionType: String
+    country: String
+    city: String
+    status: String
+  ): [JobOpportunity!]!
+  jobOpportunity(id: String!): JobOpportunity
+
+  # Messaging
+  myConversations(userId: String!): [Conversation!]!
+  conversation(id: String!): Conversation
+  messages(conversationId: String!): [Message!]!
 }
 
 type Mutation {
+  # Auth
   register(email: String!, username: String!, password: String!): String!
   login(email: String!, password: String!): String!
+  uploadAvatar(userId: String!, base64: String!): Boolean!
+
+  # Clubs
   createClub(name: String!, location: String!): Club!
   createTeam(clubId: String!, name: String!, category: String!): Team!
   invitePlayerToClub(
@@ -52,12 +165,61 @@ type Mutation {
     invitedBy: String!
   ): ClubMember!
   acceptMembership(membershipId: String!): ClubMember!
-  uploadAvatar(userId: String!, base64: String!): Boolean!
-  createService(
+
+  # Posts
+  createPost(
+    content: String!
+    imageUrl: String!
+    authorType: String!
+    authorId: String!
+  ): Post!
+  updatePost(id: String!, content: String, imageUrl: String): Post!
+  deletePost(id: String!): Boolean!
+
+  # Comments & Likes
+  createComment(postId: String!, authorId: String!, content: String!): Comment!
+  deleteComment(id: String!): Boolean!
+  likePost(postId: String!, userId: String!): Like!
+  unlikePost(postId: String!, userId: String!): Boolean!
+
+  # Follow
+  follow(
+    followerType: String!
+    followerId: String!
+    followingType: String!
+    followingId: String!
+  ): Follow!
+  unfollow(
+    followerType: String!
+    followerId: String!
+    followingType: String!
+    followingId: String!
+  ): Boolean!
+
+  # Job Opportunities
+  createJobOpportunity(
     title: String!
     description: String!
-    providerId: String!
-    priceAmount: Float!
-  ): Service!
+    positionType: String!
+    clubId: String!
+    country: String!
+    city: String!
+    salary: Float
+    currency: String
+    benefits: String
+  ): JobOpportunity!
+  updateJobOpportunity(id: String!, status: String): JobOpportunity!
+  deleteJobOpportunity(id: String!): Boolean!
+
+  # Messaging
+  startConversation(participantIds: [String!]!): Conversation!
+  sendMessage(
+    conversationId: String!
+    senderId: String!
+    content: String!
+  ): Message!
+  markMessageAsRead(messageId: String!): Boolean!
+
+  # Payments
   createPaymentIntent(amount: Float!, currency: String): PaymentIntent!
 }
