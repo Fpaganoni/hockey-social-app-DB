@@ -1,25 +1,41 @@
 type User {
   id: ID!
   email: String!
-  username: String!
-  role: String!
-  isVerified: Boolean!
-  profile: Profile
-  createdAt: String!
-}
-
-type Profile {
-  id: ID!
-  displayName: String
+  name: String!
+  username: String
+  avatar: String
+  coverImage: String
   bio: String
-  avatarUrl: String
+  position: String
+  role: String!
+  country: String
+  city: String
+  clubId: String
+  club: Club
+  yearsOfExperience: Int
+  isVerified: Boolean!
+  isActive: Boolean!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Club {
   id: ID!
   name: String!
-  location: String
+  logo: String
+  coverImage: String
+  description: String
+  bio: String
+  city: String!
+  country: String!
+  league: String
+  foundedYear: Int
+  email: String
+  phone: String
+  website: String
   isVerified: Boolean!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Team {
@@ -39,11 +55,16 @@ type ClubMember {
 type Post {
   id: ID!
   content: String!
-  imageUrl: String!
-  authorType: String!
-  authorId: String!
-  author: User
-  clubAuthor: Club
+  imageUrl: String
+  images: [String!]!
+  videoUrl: String
+  userId: ID!
+  clubId: ID
+  isClubPost: Boolean!
+  visibility: String!
+  isPinned: Boolean!
+  user: User!
+  club: Club
   comments: [Comment!]!
   likes: [Like!]!
   likesCount: Int!
@@ -54,7 +75,21 @@ type Post {
 type Comment {
   id: ID!
   content: String!
-  author: User!
+  postId: ID!
+  userId: ID!
+  parentCommentId: ID
+  user: User!
+  parentComment: Comment
+  replies: [Comment!]!
+  likes: [CommentLike!]!
+  likesCount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CommentLike {
+  id: ID!
+  user: User!
   createdAt: String!
 }
 
@@ -85,7 +120,24 @@ type JobOpportunity {
   currency: String
   benefits: String
   status: String!
+  applications: [JobApplication!]!
   createdAt: String!
+}
+
+type JobApplication {
+  id: ID!
+  jobOpportunityId: ID!
+  userId: ID!
+  status: String!
+  coverLetter: String
+  resumeUrl: String
+  appliedAt: String!
+  updatedAt: String!
+  reviewedAt: String
+  reviewedBy: String
+  notes: String
+  user: User!
+  jobOpportunity: JobOpportunity!
 }
 
 type Conversation {
@@ -144,6 +196,11 @@ type Query {
   ): [JobOpportunity!]!
   jobOpportunity(id: String!): JobOpportunity
 
+  # Job Applications
+  jobApplications(jobOpportunityId: String!, status: String): [JobApplication!]!
+  userApplications(userId: String!, status: String): [JobApplication!]!
+  jobApplication(id: String!): JobApplication
+
   # Messaging
   myConversations(userId: String!): [Conversation!]!
   conversation(id: String!): Conversation
@@ -152,12 +209,34 @@ type Query {
 
 type Mutation {
   # Auth
-  register(email: String!, username: String!, password: String!): String!
+  register(
+    email: String!
+    name: String!
+    username: String
+    password: String!
+  ): String!
   login(email: String!, password: String!): String!
   uploadAvatar(userId: String!, base64: String!): Boolean!
+  updateUser(
+    id: ID!
+    name: String
+    bio: String
+    avatar: String
+    coverImage: String
+    position: String
+    country: String
+    city: String
+    clubId: ID
+    yearsOfExperience: Int
+  ): User!
 
   # Clubs
-  createClub(name: String!, location: String!): Club!
+  createClub(
+    name: String!
+    city: String!
+    country: String!
+    location: String
+  ): Club!
   createTeam(clubId: String!, name: String!, category: String!): Team!
   invitePlayerToClub(
     clubId: String!
@@ -169,16 +248,35 @@ type Mutation {
   # Posts
   createPost(
     content: String!
-    imageUrl: String!
-    authorType: String!
-    authorId: String!
+    userId: ID!
+    clubId: ID
+    imageUrl: String
+    images: [String!]
+    videoUrl: String
+    visibility: String
+    isPinned: Boolean
   ): Post!
-  updatePost(id: String!, content: String, imageUrl: String): Post!
-  deletePost(id: String!): Boolean!
+  updatePost(
+    id: ID!
+    content: String
+    imageUrl: String
+    images: [String!]
+    videoUrl: String
+    visibility: String
+    isPinned: Boolean
+  ): Post!
+  deletePost(id: ID!): Boolean!
 
   # Comments & Likes
-  createComment(postId: String!, authorId: String!, content: String!): Comment!
+  createComment(
+    postId: String!
+    userId: String!
+    content: String!
+    parentCommentId: String
+  ): Comment!
   deleteComment(id: String!): Boolean!
+  likeComment(commentId: String!, userId: String!): CommentLike!
+  unlikeComment(commentId: String!, userId: String!): Boolean!
   likePost(postId: String!, userId: String!): Like!
   unlikePost(postId: String!, userId: String!): Boolean!
 
@@ -210,6 +308,21 @@ type Mutation {
   ): JobOpportunity!
   updateJobOpportunity(id: String!, status: String): JobOpportunity!
   deleteJobOpportunity(id: String!): Boolean!
+
+  # Job Applications
+  applyForJob(
+    jobOpportunityId: String!
+    userId: String!
+    coverLetter: String
+    resumeUrl: String
+  ): JobApplication!
+  updateApplicationStatus(
+    id: String!
+    status: String!
+    reviewedBy: String
+    notes: String
+  ): JobApplication!
+  withdrawApplication(id: String!, userId: String!): JobApplication!
 
   # Messaging
   startConversation(participantIds: [String!]!): Conversation!

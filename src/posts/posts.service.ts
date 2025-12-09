@@ -19,28 +19,56 @@ export class PostsService {
     });
   }
 
-  async findByAuthor(authorId: string, authorType: "USER" | "CLUB") {
+  async findByUser(userId: string) {
     return this.prisma.post.findMany({
-      where: {
-        authorId,
-        authorType,
-      },
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
+  async findByClub(clubId: string) {
+    return this.prisma.post.findMany({
+      where: { clubId },
       orderBy: { createdAt: "desc" },
     });
   }
 
   async create(data: {
     content: string;
-    imageUrl: string;
-    authorType: "USER" | "CLUB";
-    authorId: string;
+    userId: string;
+    clubId?: string;
+    imageUrl?: string;
+    images?: string[];
+    videoUrl?: string;
+    visibility?: "PUBLIC" | "FRIENDS" | "PRIVATE";
+    isPinned?: boolean;
   }) {
     return this.prisma.post.create({
-      data,
+      data: {
+        content: data.content,
+        userId: data.userId,
+        clubId: data.clubId,
+        imageUrl: data.imageUrl,
+        images: data.images || [],
+        videoUrl: data.videoUrl,
+        visibility: data.visibility || "PUBLIC",
+        isPinned: data.isPinned || false,
+        isClubPost: !!data.clubId,
+      },
     });
   }
 
-  async update(id: string, data: { content?: string; imageUrl?: string }) {
+  async update(
+    id: string,
+    data: {
+      content?: string;
+      imageUrl?: string;
+      images?: string[];
+      videoUrl?: string;
+      visibility?: "PUBLIC" | "FRIENDS" | "PRIVATE";
+      isPinned?: boolean;
+    }
+  ) {
     return this.prisma.post.update({
       where: { id },
       data,
@@ -58,28 +86,31 @@ export class PostsService {
       where: { postId },
       orderBy: { createdAt: "asc" },
       include: {
-        author: {
+        user: true,
+        replies: {
           include: {
-            profile: true,
+            user: true,
           },
         },
       },
     });
   }
 
-  async createComment(postId: string, authorId: string, content: string) {
+  async createComment(
+    postId: string,
+    userId: string,
+    content: string,
+    parentCommentId?: string
+  ) {
     return this.prisma.comment.create({
       data: {
         postId,
-        authorId,
+        userId,
         content,
+        parentCommentId,
       },
       include: {
-        author: {
-          include: {
-            profile: true,
-          },
-        },
+        user: true,
       },
     });
   }
@@ -89,16 +120,60 @@ export class PostsService {
     return true;
   }
 
+  // Comment Likes
+  async likeComment(commentId: string, userId: string) {
+    try {
+      return await this.prisma.commentLike.create({
+        data: {
+          commentId,
+          userId,
+        },
+      });
+    } catch (error) {
+      if (error.code === "P2002") {
+        throw new Error("You already liked this comment");
+      }
+      throw error;
+    }
+  }
+
+  async unlikeComment(commentId: string, userId: string) {
+    const like = await this.prisma.commentLike.findFirst({
+      where: { commentId, userId },
+    });
+
+    if (!like) {
+      throw new Error("Comment like not found");
+    }
+
+    await this.prisma.commentLike.delete({
+      where: { id: like.id },
+    });
+
+    return true;
+  }
+
+  async getCommentLikes(commentId: string) {
+    return this.prisma.commentLike.findMany({
+      where: { commentId },
+      include: {
+        user: true,
+      },
+    });
+  }
+
+  async getCommentLikesCount(commentId: string) {
+    return this.prisma.commentLike.count({
+      where: { commentId },
+    });
+  }
+
   // Likes
   async getLikes(postId: string) {
     return this.prisma.like.findMany({
       where: { postId },
       include: {
-        user: {
-          include: {
-            profile: true,
-          },
-        },
+        user: true,
       },
     });
   }
@@ -139,25 +214,5 @@ export class PostsService {
     });
 
     return true;
-  }
-
-  // Resolve polymorphic author
-  async getAuthor(post: any) {
-    if (post.authorType === "USER") {
-      return this.prisma.user.findUnique({
-        where: { id: post.authorId },
-        include: { profile: true },
-      });
-    }
-    return null;
-  }
-
-  async getClubAuthor(post: any) {
-    if (post.authorType === "CLUB") {
-      return this.prisma.club.findUnique({
-        where: { id: post.authorId },
-      });
-    }
-    return null;
   }
 }

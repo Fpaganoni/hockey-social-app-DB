@@ -10,48 +10,81 @@ datasource db {
 model User {
   id                String          @id @default(uuid())
   email             String          @unique
-  username          String          @unique
-  password          String?
+  password          String
+  name              String          // NEW - REQUIRED
+  username          String?         @unique
+  avatar            String?         // NEW - profile picture URL
+  coverImage        String?         // NEW - cover/banner image
+  bio               String?         // NEW - merged from Profile
+  position          String?         // NEW - playing position
   role              Role            @default(PLAYER)
+  country           String?         // NEW - country code or emoji
+  city              String?         // NEW - city of residence
+  clubId            String?         // NEW - current club affiliation
+  yearsOfExperience Int?            // NEW - years playing/coaching
   isVerified        Boolean         @default(false)
-  profile           Profile?
+  isActive          Boolean         @default(true) // NEW - account active status
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
-  clubs             ClubMember[]
+  
+  // Relations
+  club              Club?           @relation("ClubMembers", fields: [clubId], references: [id])
+  clubs             ClubMember[]    @relation("UserClubMemberships")
   invitationsSent   ClubMember[]    @relation("InvitedBy")
   
   // Social features
-  comments          Comment[]
+  posts             Post[]          @relation("UserPosts")
+  comments          Comment[]       @relation("CommentAuthor")
+  commentLikes      CommentLike[]   @relation("UserCommentLikes")
   likes             Like[]
   conversations     Conversation[]  @relation("ConversationParticipants")
   messagesSent      Message[]
-}
-
-model Profile {
-  id          String   @id @default(uuid())
-  displayName String   @default("")
-  bio         String?
-  avatarUrl   String?
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      String   @unique
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  
+  // Follow system (relations managed in Follow model)
+  
+  // Job applications
+  jobApplications   JobApplication[] @relation("UserJobApplications")
+  
+  // Career & Stats (will be added in Phase 5)
+  // trajectories      Trajectory[]
+  // statistics        Statistics[]
+  
+  @@index([email])
+  @@index([username])
+  @@index([clubId])
+  @@index([role, isActive])
 }
 
 model Club {
   id                String            @id @default(uuid())
-  name              String
-  location          String?
+  name              String            @unique
+  logo              String?           // NEW - club logo/badge URL
+  coverImage        String?           // NEW - club cover image URL
+  description       String?           // NEW - club description/about
+  bio               String?           // NEW - short club bio
+  city              String            // NEW - REQUIRED - club location city
+  country           String            // NEW - REQUIRED - country code or emoji
+  league            String?           // NEW - league/division
+  foundedYear       Int?              // NEW - year club was founded
+  email             String?           // NEW - club contact email
+  phone             String?           // NEW - club contact phone
+  website           String?           // NEW - club official website
   isVerified        Boolean           @default(false)
-  teams             Team[]
-  members           ClubMember[]
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   
-  // Social features
+  // Relations
+  members           User[]            @relation("ClubMembers")
+  clubMembers       ClubMember[]      @relation("ClubMemberships")
+  teams             Team[]
+  posts             Post[]            @relation("ClubPosts")
   jobOpportunities  JobOpportunity[]
+  // trajectories      Trajectory[]      // Will be added in Phase 5
+  // statistics        Statistics[]      // Will be added in Phase 5
 
   @@index([name])
+  @@index([country, city])
+  @@index([league])
 }
 
 model Team {
@@ -67,11 +100,11 @@ model Team {
 
 model ClubMember {
   id          String           @id @default(uuid())
-  club        Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  club        Club             @relation("ClubMemberships", fields: [clubId], references: [id], onDelete: Cascade)
   clubId      String
   team        Team?            @relation(fields: [teamId], references: [id], onDelete: SetNull)
   teamId      String?
-  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  user        User             @relation("UserClubMemberships", fields: [userId], references: [id], onDelete: Cascade)
   userId      String
   roleInClub  ClubRole         @default(MEMBER)
   status      MembershipStatus @default(PENDING)
@@ -90,31 +123,67 @@ model ClubMember {
 model Post {
   id          String      @id @default(uuid())
   content     String      @db.Text
-  imageUrl    String      // MANDATORY
-  authorType  AuthorType  // USER or CLUB
-  authorId    String      // ID without FK constraint
-  
-  comments    Comment[]
-  likes       Like[]
+  imageUrl    String?     // Single featured image
+  images      String[]    // Array of image URLs for carousel
+  videoUrl    String?     // Single video URL
+  userId      String      // Direct user FK (required)
+  clubId      String?     // Optional club FK
+  isClubPost  Boolean     @default(false) // True if posted by club
+  visibility  Visibility  @default(PUBLIC) // Post visibility
+  isPinned    Boolean     @default(false) // Pinned to top
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   
-  @@index([authorType, authorId])
+  user        User        @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  club        Club?       @relation("ClubPosts", fields: [clubId], references: [id], onDelete: Cascade)
+  comments    Comment[]
+  likes       Like[]
+  
+  @@index([userId, createdAt])
+  @@index([clubId, createdAt])
+  @@index([visibility, createdAt])
+  @@index([isPinned, createdAt])
   @@index([createdAt])
 }
 
+enum Visibility {
+  PUBLIC
+  FRIENDS
+  PRIVATE
+}
+
 model Comment {
-  id        String   @id @default(uuid())
-  content   String   @db.Text
-  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
-  postId    String
-  author    User     @relation(fields: [authorId], references: [id], onDelete: Cascade)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id              String        @id @default(uuid())
+  content         String        @db.Text
+  postId          String
+  userId          String        // Renamed from authorId for consistency
+  parentCommentId String?       // NEW - For nested replies
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+  
+  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user            User          @relation("CommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  parentComment   Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies         Comment[]     @relation("CommentReplies")
+  likes           CommentLike[]
   
   @@index([postId])
-  @@index([authorId])
+  @@index([userId])
+  @@index([parentCommentId])
+}
+
+model CommentLike {
+  id        String   @id @default(uuid())
+  commentId String
+  userId    String
+  createdAt DateTime @default(now())
+  
+  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user      User     @relation("UserCommentLikes", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([commentId, userId])
+  @@index([commentId])
+  @@index([userId])
 }
 
 model Like {
@@ -144,24 +213,56 @@ model Follow {
 }
 
 model JobOpportunity {
-  id            String       @id @default(uuid())
+  id            String          @id @default(uuid())
   title         String
-  description   String       @db.Text
+  description   String          @db.Text
   positionType  PositionType
-  club          Club         @relation(fields: [clubId], references: [id], onDelete: Cascade)
   clubId        String
   country       String
   city          String
   salary        Float?
   currency      Currency?
-  benefits      String?      @db.Text
-  status        JobStatus    @default(OPEN)
-  createdAt     DateTime     @default(now())
-  updatedAt     DateTime     @updatedAt
+  benefits      String?         @db.Text
+  status        JobStatus       @default(OPEN)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  
+  club          Club            @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  applications  JobApplication[]
   
   @@index([clubId])
   @@index([status, positionType])
   @@index([country, city])
+}
+
+model JobApplication {
+  id                String              @id @default(uuid())
+  jobOpportunityId  String
+  userId            String
+  status            ApplicationStatus   @default(PENDING)
+  coverLetter       String?             @db.Text
+  resumeUrl         String?
+  appliedAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+  reviewedAt        DateTime?
+  reviewedBy        String?
+  notes             String?             @db.Text
+  
+  jobOpportunity    JobOpportunity      @relation(fields: [jobOpportunityId], references: [id], onDelete: Cascade)
+  user              User                @relation("UserJobApplications", fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@unique([jobOpportunityId, userId])
+  @@index([jobOpportunityId])
+  @@index([userId])
+  @@index([status])
+}
+
+enum ApplicationStatus {
+  PENDING
+  UNDER_REVIEW
+  ACCEPTED
+  REJECTED
+  WITHDRAWN
 }
 
 model Conversation {

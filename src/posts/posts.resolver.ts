@@ -27,26 +27,35 @@ export class PostsResolver {
 
   @Query(() => [Object])
   async postsByUser(@Args("userId") userId: string) {
-    return this.postsService.findByAuthor(userId, "USER");
+    return this.postsService.findByUser(userId);
   }
 
   @Query(() => [Object])
   async postsByClub(@Args("clubId") clubId: string) {
-    return this.postsService.findByAuthor(clubId, "CLUB");
+    return this.postsService.findByClub(clubId);
   }
 
   @Mutation(() => Object)
   async createPost(
     @Args("content") content: string,
-    @Args("imageUrl") imageUrl: string,
-    @Args("authorType") authorType: string,
-    @Args("authorId") authorId: string
+    @Args("userId") userId: string,
+    @Args("clubId", { nullable: true }) clubId?: string,
+    @Args("imageUrl", { nullable: true }) imageUrl?: string,
+    @Args({ name: "images", type: () => [String], nullable: true })
+    images?: string[],
+    @Args("videoUrl", { nullable: true }) videoUrl?: string,
+    @Args("visibility", { nullable: true }) visibility?: string,
+    @Args("isPinned", { nullable: true }) isPinned?: boolean
   ) {
     return this.postsService.create({
       content,
+      userId,
+      clubId,
       imageUrl,
-      authorType: authorType as "USER" | "CLUB",
-      authorId,
+      images,
+      videoUrl,
+      visibility: visibility as "PUBLIC" | "FRIENDS" | "PRIVATE",
+      isPinned,
     });
   }
 
@@ -54,9 +63,21 @@ export class PostsResolver {
   async updatePost(
     @Args("id") id: string,
     @Args("content", { nullable: true }) content?: string,
-    @Args("imageUrl", { nullable: true }) imageUrl?: string
+    @Args("imageUrl", { nullable: true }) imageUrl?: string,
+    @Args({ name: "images", type: () => [String], nullable: true })
+    images?: string[],
+    @Args("videoUrl", { nullable: true }) videoUrl?: string,
+    @Args("visibility", { nullable: true }) visibility?: string,
+    @Args("isPinned", { nullable: true }) isPinned?: boolean
   ) {
-    return this.postsService.update(id, { content, imageUrl });
+    return this.postsService.update(id, {
+      content,
+      imageUrl,
+      images,
+      videoUrl,
+      visibility: visibility as "PUBLIC" | "FRIENDS" | "PRIVATE",
+      isPinned,
+    });
   }
 
   @Mutation(() => Boolean)
@@ -73,10 +94,16 @@ export class PostsResolver {
   @Mutation(() => Object)
   async createComment(
     @Args("postId") postId: string,
-    @Args("authorId") authorId: string,
-    @Args("content") content: string
+    @Args("userId") userId: string,
+    @Args("content") content: string,
+    @Args("parentCommentId", { nullable: true }) parentCommentId?: string
   ) {
-    return this.postsService.createComment(postId, authorId, content);
+    return this.postsService.createComment(
+      postId,
+      userId,
+      content,
+      parentCommentId
+    );
   }
 
   @Mutation(() => Boolean)
@@ -102,16 +129,6 @@ export class PostsResolver {
   }
 
   // Field resolvers
-  @ResolveField("author")
-  async author(@Parent() post: any) {
-    return this.postsService.getAuthor(post);
-  }
-
-  @ResolveField("clubAuthor")
-  async clubAuthor(@Parent() post: any) {
-    return this.postsService.getClubAuthor(post);
-  }
-
   @ResolveField("comments")
   async commentsField(@Parent() post: any) {
     return this.postsService.getComments(post.id);

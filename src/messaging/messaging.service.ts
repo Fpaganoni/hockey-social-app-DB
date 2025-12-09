@@ -15,11 +15,7 @@ export class MessagingService {
         },
       },
       include: {
-        participants: {
-          include: {
-            profile: true,
-          },
-        },
+        participants: {},
         messages: {
           take: 1,
           orderBy: {
@@ -37,21 +33,13 @@ export class MessagingService {
     return this.prisma.conversation.findUnique({
       where: { id },
       include: {
-        participants: {
-          include: {
-            profile: true,
-          },
-        },
+        participants: {},
         messages: {
           orderBy: {
             createdAt: "asc",
           },
           include: {
-            sender: {
-              include: {
-                profile: true,
-              },
-            },
+            sender: true,
           },
         },
       },
@@ -63,11 +51,7 @@ export class MessagingService {
       where: { conversationId },
       orderBy: { createdAt: "asc" },
       include: {
-        sender: {
-          include: {
-            profile: true,
-          },
-        },
+        sender: {},
       },
     });
   }
@@ -95,11 +79,7 @@ export class MessagingService {
         },
       },
       include: {
-        participants: {
-          include: {
-            profile: true,
-          },
-        },
+        participants: {},
       },
     });
   }
@@ -112,11 +92,7 @@ export class MessagingService {
         content,
       },
       include: {
-        sender: {
-          include: {
-            profile: true,
-          },
-        },
+        sender: {},
       },
     });
 
