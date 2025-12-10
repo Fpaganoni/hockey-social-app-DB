@@ -45,9 +45,9 @@ model User {
   // Job applications
   jobApplications   JobApplication[] @relation("UserJobApplications")
   
-  // Career & Stats (will be added in Phase 5)
-  // trajectories      Trajectory[]
-  // statistics        Statistics[]
+  // Career & Stats
+  trajectories      Trajectory[]     @relation("UserTrajectories")
+  statistics        Statistics[]     @relation("UserStatistics")
   
   @@index([email])
   @@index([username])
@@ -79,8 +79,8 @@ model Club {
   teams             Team[]
   posts             Post[]            @relation("ClubPosts")
   jobOpportunities  JobOpportunity[]
-  // trajectories      Trajectory[]      // Will be added in Phase 5
-  // statistics        Statistics[]      // Will be added in Phase 5
+  trajectories      Trajectory[]      @relation("ClubTrajectories")
+  statistics        Statistics[]      @relation("ClubStatistics")
 
   @@index([name])
   @@index([country, city])
@@ -263,6 +263,54 @@ enum ApplicationStatus {
   ACCEPTED
   REJECTED
   WITHDRAWN
+}
+
+model Trajectory {
+  id           String    @id @default(uuid())
+  userId       String
+  clubId       String?
+  title        String              // "Player", "Coach", "Assistant Coach"
+  organization String              // Club or organization name
+  period       String              // "2020-2023", "2023-Present"
+  description  String?   @db.Text  // Role description
+  startDate    DateTime?
+  endDate      DateTime?
+  isCurrent    Boolean   @default(false)
+  order        Int       @default(0)  // Display order
+  createdAt    DateTime  @default(now())
+  
+  user         User      @relation("UserTrajectories", fields: [userId], references: [id], onDelete: Cascade)
+  club         Club?     @relation("ClubTrajectories", fields: [clubId], references: [id], onDelete: SetNull)
+  
+  @@index([userId])
+  @@index([clubId])
+  @@index([isCurrent])
+}
+
+model Statistics {
+  id          String    @id @default(uuid())
+  userId      String
+  clubId      String?
+  season      String              // "2023-2024", "Career"
+  gamesPlayed Int       @default(0)
+  goals       Int       @default(0)
+  assists     Int       @default(0)
+  points      Int       @default(0)  // goals + assists
+  wins        Int       @default(0)  // For coaches/goalies
+  losses      Int       @default(0)
+  draws       Int       @default(0)
+  cleanSheets Int       @default(0)  // For goalies
+  saves       Int       @default(0)  // For goalies
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  user        User      @relation("UserStatistics", fields: [userId], references: [id], onDelete: Cascade)
+  club        Club?     @relation("ClubStatistics", fields: [clubId], references: [id], onDelete: SetNull)
+  
+  @@unique([userId, season, clubId])
+  @@index([userId])
+  @@index([clubId])
+  @@index([season])
 }
 
 model Conversation {

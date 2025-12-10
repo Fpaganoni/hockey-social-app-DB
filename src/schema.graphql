@@ -140,6 +140,43 @@ type JobApplication {
   jobOpportunity: JobOpportunity!
 }
 
+type Trajectory {
+  id: ID!
+  userId: ID!
+  clubId: ID
+  title: String!
+  organization: String!
+  period: String!
+  description: String
+  startDate: String
+  endDate: String
+  isCurrent: Boolean!
+  order: Int!
+  createdAt: String!
+  user: User!
+  club: Club
+}
+
+type Statistics {
+  id: ID!
+  userId: ID!
+  clubId: ID
+  season: String!
+  gamesPlayed: Int!
+  goals: Int!
+  assists: Int!
+  points: Int!
+  wins: Int!
+  losses: Int!
+  draws: Int!
+  cleanSheets: Int!
+  saves: Int!
+  createdAt: String!
+  updatedAt: String!
+  user: User!
+  club: Club
+}
+
 type Conversation {
   id: ID!
   participants: [User!]!
