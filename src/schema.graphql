@@ -1,15 +1,41 @@
 type User {
   id: ID!
   email: String!
-  username: String!
+  name: String!
+  username: String
+  avatar: String
+  coverImage: String
+  bio: String
+  position: String
   role: String!
+  country: String
+  city: String
+  clubId: String
+  club: Club
+  yearsOfExperience: Int
+  isVerified: Boolean!
+  isActive: Boolean!
   createdAt: String!
+  updatedAt: String!
 }
 
 type Club {
   id: ID!
   name: String!
-  location: String
+  logo: String
+  coverImage: String
+  description: String
+  bio: String
+  city: String!
+  country: String!
+  league: String
+  foundedYear: Int
+  email: String
+  phone: String
+  website: String
+  isVerified: Boolean!
+  createdAt: String!
+  updatedAt: String!
 }
 
 type Team {
@@ -20,13 +46,200 @@ type Team {
 
 type ClubMember {
   id: ID!
+  club: Club!
+  user: User!
+  roleInClub: String!
+  status: String!
 }
 
-type Service {
+type Post {
+  id: ID!
+  content: String!
+  imageUrl: String
+  images: [String!]!
+  videoUrl: String
+  userId: ID!
+  clubId: ID
+  isClubPost: Boolean!
+  visibility: String!
+  isPinned: Boolean!
+  user: User!
+  club: Club
+  comments: [Comment!]!
+  likes: [Like!]!
+  likesCount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Comment {
+  id: ID!
+  content: String!
+  postId: ID!
+  userId: ID!
+  parentCommentId: ID
+  user: User!
+  parentComment: Comment
+  replies: [Comment!]!
+  likes: [CommentLike!]!
+  likesCount: Int!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type CommentLike {
+  id: ID!
+  user: User!
+  createdAt: String!
+}
+
+type Like {
+  id: ID!
+  user: User!
+  createdAt: String!
+}
+
+type Follow {
+  id: ID!
+  followerType: String!
+  followerId: String!
+  followingType: String!
+  followingId: String!
+  createdAt: String!
+}
+
+type JobOpportunity {
   id: ID!
   title: String!
   description: String!
-  priceAmount: Float
+  positionType: String!
+  club: Club!
+  country: String!
+  city: String!
+  salary: Float
+  currency: String
+  benefits: String
+  status: String!
+  applications: [JobApplication!]!
+  createdAt: String!
+}
+
+type JobApplication {
+  id: ID!
+  jobOpportunityId: ID!
+  userId: ID!
+  status: String!
+  coverLetter: String
+  resumeUrl: String
+  appliedAt: String!
+  updatedAt: String!
+  reviewedAt: String
+  reviewedBy: String
+  notes: String
+  user: User!
+  jobOpportunity: JobOpportunity!
+}
+
+type Trajectory {
+  id: ID!
+  userId: ID!
+  clubId: ID
+  title: String!
+  organization: String!
+  period: String!
+  description: String
+  startDate: String
+  endDate: String
+  isCurrent: Boolean!
+  order: Int!
+  createdAt: String!
+  user: User!
+  club: Club
+}
+
+type Statistics {
+  id: ID!
+  userId: ID!
+  clubId: ID
+  season: String!
+  gamesPlayed: Int!
+  goals: Int!
+  assists: Int!
+  points: Int!
+  wins: Int!
+  losses: Int!
+  draws: Int!
+  cleanSheets: Int!
+  saves: Int!
+  createdAt: String!
+  updatedAt: String!
+  user: User!
+  club: Club
+}
+
+type Conversation {
+  id: ID!
+  isGroup: Boolean!
+  name: String
+  avatar: String
+  participants: [ConversationParticipant!]!
+  messages: [Message!]!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type ConversationParticipant {
+  id: ID!
+  conversationId: ID!
+  userId: ID!
+  lastSeenMessageId: ID
+  unreadCount: Int!
+  joinedAt: String!
+  user: User!
+}
+
+type Message {
+  id: ID!
+  content: String!
+  senderId: ID!
+  conversationId: ID!
+  isRead: Boolean!
+  readAt: String
+  imageUrl: String
+  fileUrl: String
+  sender: User!
+  createdAt: String!
+  updatedAt: String!
+}
+
+type Share {
+  id: ID!
+  userId: ID!
+  postId: ID!
+  createdAt: String!
+  user: User!
+  post: Post!
+}
+
+type Story {
+  id: ID!
+  userId: ID!
+  imageUrl: String
+  videoUrl: String
+  text: String
+  expiresAt: String!
+  createdAt: String!
+  user: User!
+  views: [StoryView!]!
+}
+
+type StoryView {
+  id: ID!
+  storyId: ID!
+  userId: ID!
+  viewedAt: String!
+  user: User!
+  story: Story!
 }
 
 type PaymentIntent {
@@ -35,16 +248,82 @@ type PaymentIntent {
 }
 
 type Query {
-  clubs: [Club!]!
+  # Users
+  users: [User!]!
+  user(id: String!): User
   me(id: String!): User
+  players: [User!]!
+  coaches: [User!]!
+
+  # Clubs & Teams
+  clubs: [Club!]!
   teamsByClub(clubId: String!): [Team!]!
-  services: [Service!]!
+
+  # Posts (Social Feed)
+  posts(limit: Int, offset: Int): [Post!]!
+  post(id: String!): Post
+  postsByUser(userId: String!): [Post!]!
+  postsByClub(clubId: String!): [Post!]!
+
+  # Comments
+  comments(postId: String!): [Comment!]!
+
+  # Follow
+  followers(entityType: String!, entityId: String!): [Follow!]!
+  following(entityType: String!, entityId: String!): [Follow!]!
+  followersCount(entityType: String!, entityId: String!): Int!
+  followingCount(entityType: String!, entityId: String!): Int!
+
+  # Job Opportunities
+  jobOpportunities(
+    positionType: String
+    country: String
+    city: String
+    status: String
+  ): [JobOpportunity!]!
+  jobOpportunity(id: String!): JobOpportunity
+
+  # Job Applications
+  jobApplications(jobOpportunityId: String!, status: String): [JobApplication!]!
+  userApplications(userId: String!, status: String): [JobApplication!]!
+  jobApplication(id: String!): JobApplication
+
+  # Messaging
+  myConversations(userId: String!): [Conversation!]!
+  conversation(id: String!): Conversation
+  messages(conversationId: String!): [Message!]!
 }
 
 type Mutation {
-  register(email: String!, username: String!, password: String!): String!
+  # Auth
+  register(
+    email: String!
+    name: String!
+    username: String
+    password: String!
+  ): String!
   login(email: String!, password: String!): String!
-  createClub(name: String!, location: String!): Club!
+  uploadAvatar(userId: String!, base64: String!): Boolean!
+  updateUser(
+    id: ID!
+    name: String
+    bio: String
+    avatar: String
+    coverImage: String
+    position: String
+    country: String
+    city: String
+    clubId: ID
+    yearsOfExperience: Int
+  ): User!
+
+  # Clubs
+  createClub(
+    name: String!
+    city: String!
+    country: String!
+    location: String
+  ): Club!
   createTeam(clubId: String!, name: String!, category: String!): Team!
   invitePlayerToClub(
     clubId: String!
@@ -52,12 +331,95 @@ type Mutation {
     invitedBy: String!
   ): ClubMember!
   acceptMembership(membershipId: String!): ClubMember!
-  uploadAvatar(userId: String!, base64: String!): Boolean!
-  createService(
+
+  # Posts
+  createPost(
+    content: String!
+    userId: ID!
+    clubId: ID
+    imageUrl: String
+    images: [String!]
+    videoUrl: String
+    visibility: String
+    isPinned: Boolean
+  ): Post!
+  updatePost(
+    id: ID!
+    content: String
+    imageUrl: String
+    images: [String!]
+    videoUrl: String
+    visibility: String
+    isPinned: Boolean
+  ): Post!
+  deletePost(id: ID!): Boolean!
+
+  # Comments & Likes
+  createComment(
+    postId: String!
+    userId: String!
+    content: String!
+    parentCommentId: String
+  ): Comment!
+  deleteComment(id: String!): Boolean!
+  likeComment(commentId: String!, userId: String!): CommentLike!
+  unlikeComment(commentId: String!, userId: String!): Boolean!
+  likePost(postId: String!, userId: String!): Like!
+  unlikePost(postId: String!, userId: String!): Boolean!
+
+  # Follow
+  follow(
+    followerType: String!
+    followerId: String!
+    followingType: String!
+    followingId: String!
+  ): Follow!
+  unfollow(
+    followerType: String!
+    followerId: String!
+    followingType: String!
+    followingId: String!
+  ): Boolean!
+
+  # Job Opportunities
+  createJobOpportunity(
     title: String!
     description: String!
-    providerId: String!
-    priceAmount: Float!
-  ): Service!
+    positionType: String!
+    clubId: String!
+    country: String!
+    city: String!
+    salary: Float
+    currency: String
+    benefits: String
+  ): JobOpportunity!
+  updateJobOpportunity(id: String!, status: String): JobOpportunity!
+  deleteJobOpportunity(id: String!): Boolean!
+
+  # Job Applications
+  applyForJob(
+    jobOpportunityId: String!
+    userId: String!
+    coverLetter: String
+    resumeUrl: String
+  ): JobApplication!
+  updateApplicationStatus(
+    id: String!
+    status: String!
+    reviewedBy: String
+    notes: String
+  ): JobApplication!
+  withdrawApplication(id: String!, userId: String!): JobApplication!
+
+  # Messaging
+  startConversation(participantIds: [String!]!): Conversation!
+  sendMessage(
+    conversationId: String!
+    senderId: String!
+    content: String!
+  ): Message!
+  markMessageAsRead(messageId: String!): Boolean!
+
+  # Payments
   createPaymentIntent(amount: Float!, currency: String): PaymentIntent!
 }

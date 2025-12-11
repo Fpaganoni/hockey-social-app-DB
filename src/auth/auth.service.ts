@@ -40,9 +40,8 @@ export class AuthService {
         data: {
           email: profile.email,
           username,
-          profile: profile.displayName
-            ? { create: { displayName: profile.displayName } }
-            : undefined,
+          name: profile.displayName || username,
+          password: null, // OAuth users don't have passwords
         },
       });
     }

@@ -9,7 +9,12 @@ export class ClubsService {
     return this.prisma.club.findMany({ include: { teams: true } });
   }
 
-  create(data: { name: string; location?: string }) {
+  create(data: {
+    name: string;
+    city: string;
+    country: string;
+    location?: string;
+  }) {
     return this.prisma.club.create({ data });
   }
 

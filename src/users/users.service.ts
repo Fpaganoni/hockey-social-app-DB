@@ -8,14 +8,20 @@ export class UsersService {
 
   async createUser(data: {
     email: string;
-    username: string;
+    name: string; // REQUIRED
+    username?: string;
     password?: string;
   }) {
     const hashed = data.password
       ? await bcrypt.hash(data.password, 10)
       : undefined;
     return this.prisma.user.create({
-      data: { email: data.email, username: data.username, password: hashed },
+      data: {
+        email: data.email,
+        name: data.name,
+        username: data.username,
+        password: hashed,
+      },
     });
   }
 
@@ -28,11 +34,47 @@ export class UsersService {
   }
 
   async setAvatar(userId: string, url: string) {
-    await this.prisma.profile.upsert({
-      where: { userId },
-      update: { avatarUrl: url },
-      create: { userId, avatarUrl: url },
+    // Update directly on User now (no more Profile table)
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { avatar: url },
     });
-    return this.findById(userId);
+  }
+
+  async findAll() {
+    return this.prisma.user.findMany({
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  async findByRole(role: string) {
+    return this.prisma.user.findMany({
+      where: { role: role as any },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+  }
+
+  async updateUser(
+    id: string,
+    data: {
+      name?: string;
+      bio?: string;
+      avatar?: string;
+      coverImage?: string;
+      position?: string;
+      country?: string;
+      city?: string;
+      clubId?: string;
+      yearsOfExperience?: number;
+    }
+  ) {
+    return this.prisma.user.update({
+      where: { id },
+      data,
+    });
   }
 }

@@ -14,12 +14,14 @@ export class UsersResolver {
   @Mutation(() => String)
   async register(
     @Args("email") email: string,
-    @Args("username") username: string,
-    @Args("password") password: string
+    @Args("name") name: string,
+    @Args("username", { nullable: true }) username?: string,
+    @Args("password") password?: string
   ) {
     try {
       const user = await this.usersService.createUser({
         email,
+        name,
         username,
         password,
       });
@@ -62,5 +64,51 @@ export class UsersResolver {
   @Query(() => Object)
   async me(@Args("id") id: string) {
     return this.usersService.findById(id);
+  }
+
+  @Query(() => [Object])
+  async users() {
+    return this.usersService.findAll();
+  }
+
+  @Query(() => Object, { nullable: true })
+  async user(@Args("id") id: string) {
+    return this.usersService.findById(id);
+  }
+
+  @Query(() => [Object])
+  async players() {
+    return this.usersService.findByRole("PLAYER");
+  }
+
+  @Query(() => [Object])
+  async coaches() {
+    return this.usersService.findByRole("COACH");
+  }
+
+  @Mutation(() => Object)
+  async updateUser(
+    @Args("id") id: string,
+    @Args("name", { nullable: true }) name?: string,
+    @Args("bio", { nullable: true }) bio?: string,
+    @Args("avatar", { nullable: true }) avatar?: string,
+    @Args("coverImage", { nullable: true }) coverImage?: string,
+    @Args("position", { nullable: true }) position?: string,
+    @Args("country", { nullable: true }) country?: string,
+    @Args("city", { nullable: true }) city?: string,
+    @Args("clubId", { nullable: true }) clubId?: string,
+    @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number
+  ) {
+    return this.usersService.updateUser(id, {
+      name,
+      bio,
+      avatar,
+      coverImage,
+      position,
+      country,
+      city,
+      clubId,
+      yearsOfExperience,
+    });
   }
 }
