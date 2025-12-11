@@ -8,47 +8,52 @@ datasource db {
 }
 
 model User {
-  id                String          @id @default(uuid())
-  email             String          @unique
+  id                String   @id @default(uuid())
+  email             String   @unique
   password          String
-  name              String          // NEW - REQUIRED
-  username          String?         @unique
-  avatar            String?         // NEW - profile picture URL
-  coverImage        String?         // NEW - cover/banner image
-  bio               String?         // NEW - merged from Profile
-  position          String?         // NEW - playing position
-  role              Role            @default(PLAYER)
-  country           String?         // NEW - country code or emoji
-  city              String?         // NEW - city of residence
-  clubId            String?         // NEW - current club affiliation
-  yearsOfExperience Int?            // NEW - years playing/coaching
-  isVerified        Boolean         @default(false)
-  isActive          Boolean         @default(true) // NEW - account active status
-  createdAt         DateTime        @default(now())
-  updatedAt         DateTime        @updatedAt
-  
+  name              String // NEW - REQUIRED
+  username          String?  @unique
+  avatar            String? // NEW - profile picture URL
+  coverImage        String? // NEW - cover/banner image
+  bio               String? // NEW - merged from Profile
+  position          String? // NEW - playing position
+  role              Role     @default(PLAYER)
+  country           String? // NEW - country code or emoji
+  city              String? // NEW - city of residence
+  clubId            String? // NEW - current club affiliation
+  yearsOfExperience Int? // NEW - years playing/coaching
+  isVerified        Boolean  @default(false)
+  isActive          Boolean  @default(true) // NEW - account active status
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
   // Relations
-  club              Club?           @relation("ClubMembers", fields: [clubId], references: [id])
-  clubs             ClubMember[]    @relation("UserClubMemberships")
-  invitationsSent   ClubMember[]    @relation("InvitedBy")
-  
+  club            Club?        @relation("ClubMembers", fields: [clubId], references: [id])
+  clubs           ClubMember[] @relation("UserClubMemberships")
+  invitationsSent ClubMember[] @relation("InvitedBy")
+
   // Social features
-  posts             Post[]          @relation("UserPosts")
-  comments          Comment[]       @relation("CommentAuthor")
-  commentLikes      CommentLike[]   @relation("UserCommentLikes")
-  likes             Like[]
-  conversations     Conversation[]  @relation("ConversationParticipants")
-  messagesSent      Message[]
-  
+  posts         Post[]                    @relation("UserPosts")
+  comments      Comment[]                 @relation("CommentAuthor")
+  commentLikes  CommentLike[]             @relation("UserCommentLikes")
+  likes         Like[]
+  conversations ConversationParticipant[] @relation("UserConversations")
+  messagesSent  Message[]                 @relation("MessagesSent")
+
   // Follow system (relations managed in Follow model)
-  
+
   // Job applications
-  jobApplications   JobApplication[] @relation("UserJobApplications")
-  
+  jobApplications JobApplication[] @relation("UserJobApplications")
+
   // Career & Stats
-  trajectories      Trajectory[]     @relation("UserTrajectories")
-  statistics        Statistics[]     @relation("UserStatistics")
-  
+  trajectories Trajectory[] @relation("UserTrajectories")
+  statistics   Statistics[] @relation("UserStatistics")
+
+  // Social engagement
+  shares     Share[]     @relation("UserShares")
+  stories    Story[]     @relation("UserStories")
+  storyViews StoryView[] @relation("UserStoryViews")
+
   @@index([email])
   @@index([username])
   @@index([clubId])
@@ -56,31 +61,31 @@ model User {
 }
 
 model Club {
-  id                String            @id @default(uuid())
-  name              String            @unique
-  logo              String?           // NEW - club logo/badge URL
-  coverImage        String?           // NEW - club cover image URL
-  description       String?           // NEW - club description/about
-  bio               String?           // NEW - short club bio
-  city              String            // NEW - REQUIRED - club location city
-  country           String            // NEW - REQUIRED - country code or emoji
-  league            String?           // NEW - league/division
-  foundedYear       Int?              // NEW - year club was founded
-  email             String?           // NEW - club contact email
-  phone             String?           // NEW - club contact phone
-  website           String?           // NEW - club official website
-  isVerified        Boolean           @default(false)
-  createdAt         DateTime          @default(now())
-  updatedAt         DateTime          @updatedAt
-  
+  id          String   @id @default(uuid())
+  name        String   @unique
+  logo        String? // NEW - club logo/badge URL
+  coverImage  String? // NEW - club cover image URL
+  description String? // NEW - club description/about
+  bio         String? // NEW - short club bio
+  city        String // NEW - REQUIRED - club location city
+  country     String // NEW - REQUIRED - country code or emoji
+  league      String? // NEW - league/division
+  foundedYear Int? // NEW - year club was founded
+  email       String? // NEW - club contact email
+  phone       String? // NEW - club contact phone
+  website     String? // NEW - club official website
+  isVerified  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
   // Relations
-  members           User[]            @relation("ClubMembers")
-  clubMembers       ClubMember[]      @relation("ClubMemberships")
-  teams             Team[]
-  posts             Post[]            @relation("ClubPosts")
-  jobOpportunities  JobOpportunity[]
-  trajectories      Trajectory[]      @relation("ClubTrajectories")
-  statistics        Statistics[]      @relation("ClubStatistics")
+  members          User[]           @relation("ClubMembers")
+  clubMembers      ClubMember[]     @relation("ClubMemberships")
+  teams            Team[]
+  posts            Post[]           @relation("ClubPosts")
+  jobOpportunities JobOpportunity[]
+  trajectories     Trajectory[]     @relation("ClubTrajectories")
+  statistics       Statistics[]     @relation("ClubStatistics")
 
   @@index([name])
   @@index([country, city])
@@ -121,24 +126,25 @@ model ClubMember {
 // Social Network Models
 
 model Post {
-  id          String      @id @default(uuid())
-  content     String      @db.Text
-  imageUrl    String?     // Single featured image
-  images      String[]    // Array of image URLs for carousel
-  videoUrl    String?     // Single video URL
-  userId      String      // Direct user FK (required)
-  clubId      String?     // Optional club FK
-  isClubPost  Boolean     @default(false) // True if posted by club
-  visibility  Visibility  @default(PUBLIC) // Post visibility
-  isPinned    Boolean     @default(false) // Pinned to top
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  
-  user        User        @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
-  club        Club?       @relation("ClubPosts", fields: [clubId], references: [id], onDelete: Cascade)
-  comments    Comment[]
-  likes       Like[]
-  
+  id         String     @id @default(uuid())
+  content    String     @db.Text
+  imageUrl   String? // Single featured image
+  images     String[] // Array of image URLs for carousel
+  videoUrl   String? // Single video URL
+  userId     String // Direct user FK (required)
+  clubId     String? // Optional club FK
+  isClubPost Boolean    @default(false) // True if posted by club
+  visibility Visibility @default(PUBLIC) // Post visibility
+  isPinned   Boolean    @default(false) // Pinned to top
+  createdAt  DateTime   @default(now())
+  updatedAt  DateTime   @updatedAt
+
+  user     User      @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  club     Club?     @relation("ClubPosts", fields: [clubId], references: [id], onDelete: Cascade)
+  comments Comment[]
+  likes    Like[]
+  shares   Share[]   @relation("PostShares")
+
   @@index([userId, createdAt])
   @@index([clubId, createdAt])
   @@index([visibility, createdAt])
@@ -153,20 +159,20 @@ enum Visibility {
 }
 
 model Comment {
-  id              String        @id @default(uuid())
-  content         String        @db.Text
+  id              String   @id @default(uuid())
+  content         String   @db.Text
   postId          String
-  userId          String        // Renamed from authorId for consistency
-  parentCommentId String?       // NEW - For nested replies
-  createdAt       DateTime      @default(now())
-  updatedAt       DateTime      @updatedAt
-  
-  post            Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
-  user            User          @relation("CommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
-  parentComment   Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
-  replies         Comment[]     @relation("CommentReplies")
-  likes           CommentLike[]
-  
+  userId          String // Renamed from authorId for consistency
+  parentCommentId String? // NEW - For nested replies
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  post          Post          @relation(fields: [postId], references: [id], onDelete: Cascade)
+  user          User          @relation("CommentAuthor", fields: [userId], references: [id], onDelete: Cascade)
+  parentComment Comment?      @relation("CommentReplies", fields: [parentCommentId], references: [id], onDelete: Cascade)
+  replies       Comment[]     @relation("CommentReplies")
+  likes         CommentLike[]
+
   @@index([postId])
   @@index([userId])
   @@index([parentCommentId])
@@ -177,10 +183,10 @@ model CommentLike {
   commentId String
   userId    String
   createdAt DateTime @default(now())
-  
-  comment   Comment  @relation(fields: [commentId], references: [id], onDelete: Cascade)
-  user      User     @relation("UserCommentLikes", fields: [userId], references: [id], onDelete: Cascade)
-  
+
+  comment Comment @relation(fields: [commentId], references: [id], onDelete: Cascade)
+  user    User    @relation("UserCommentLikes", fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([commentId, userId])
   @@index([commentId])
   @@index([userId])
@@ -193,64 +199,64 @@ model Like {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   createdAt DateTime @default(now())
-  
+
   @@unique([postId, userId])
   @@index([postId])
   @@index([userId])
 }
 
 model Follow {
-  id             String       @id @default(uuid())
-  followerType   FollowerType
-  followerId     String
-  followingType  FollowerType
-  followingId    String
-  createdAt      DateTime     @default(now())
-  
+  id            String       @id @default(uuid())
+  followerType  FollowerType
+  followerId    String
+  followingType FollowerType
+  followingId   String
+  createdAt     DateTime     @default(now())
+
   @@unique([followerType, followerId, followingType, followingId])
   @@index([followerType, followerId])
   @@index([followingType, followingId])
 }
 
 model JobOpportunity {
-  id            String          @id @default(uuid())
-  title         String
-  description   String          @db.Text
-  positionType  PositionType
-  clubId        String
-  country       String
-  city          String
-  salary        Float?
-  currency      Currency?
-  benefits      String?         @db.Text
-  status        JobStatus       @default(OPEN)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  
-  club          Club            @relation(fields: [clubId], references: [id], onDelete: Cascade)
-  applications  JobApplication[]
-  
+  id           String       @id @default(uuid())
+  title        String
+  description  String       @db.Text
+  positionType PositionType
+  clubId       String
+  country      String
+  city         String
+  salary       Float?
+  currency     Currency?
+  benefits     String?      @db.Text
+  status       JobStatus    @default(OPEN)
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+
+  club         Club             @relation(fields: [clubId], references: [id], onDelete: Cascade)
+  applications JobApplication[]
+
   @@index([clubId])
   @@index([status, positionType])
   @@index([country, city])
 }
 
 model JobApplication {
-  id                String              @id @default(uuid())
-  jobOpportunityId  String
-  userId            String
-  status            ApplicationStatus   @default(PENDING)
-  coverLetter       String?             @db.Text
-  resumeUrl         String?
-  appliedAt         DateTime            @default(now())
-  updatedAt         DateTime            @updatedAt
-  reviewedAt        DateTime?
-  reviewedBy        String?
-  notes             String?             @db.Text
-  
-  jobOpportunity    JobOpportunity      @relation(fields: [jobOpportunityId], references: [id], onDelete: Cascade)
-  user              User                @relation("UserJobApplications", fields: [userId], references: [id], onDelete: Cascade)
-  
+  id               String            @id @default(uuid())
+  jobOpportunityId String
+  userId           String
+  status           ApplicationStatus @default(PENDING)
+  coverLetter      String?           @db.Text
+  resumeUrl        String?
+  appliedAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  reviewedAt       DateTime?
+  reviewedBy       String?
+  notes            String?           @db.Text
+
+  jobOpportunity JobOpportunity @relation(fields: [jobOpportunityId], references: [id], onDelete: Cascade)
+  user           User           @relation("UserJobApplications", fields: [userId], references: [id], onDelete: Cascade)
+
   @@unique([jobOpportunityId, userId])
   @@index([jobOpportunityId])
   @@index([userId])
@@ -269,44 +275,44 @@ model Trajectory {
   id           String    @id @default(uuid())
   userId       String
   clubId       String?
-  title        String              // "Player", "Coach", "Assistant Coach"
-  organization String              // Club or organization name
-  period       String              // "2020-2023", "2023-Present"
-  description  String?   @db.Text  // Role description
+  title        String // "Player", "Coach", "Assistant Coach"
+  organization String // Club or organization name
+  period       String // "2020-2023", "2023-Present"
+  description  String?   @db.Text // Role description
   startDate    DateTime?
   endDate      DateTime?
   isCurrent    Boolean   @default(false)
-  order        Int       @default(0)  // Display order
+  order        Int       @default(0) // Display order
   createdAt    DateTime  @default(now())
-  
-  user         User      @relation("UserTrajectories", fields: [userId], references: [id], onDelete: Cascade)
-  club         Club?     @relation("ClubTrajectories", fields: [clubId], references: [id], onDelete: SetNull)
-  
+
+  user User  @relation("UserTrajectories", fields: [userId], references: [id], onDelete: Cascade)
+  club Club? @relation("ClubTrajectories", fields: [clubId], references: [id], onDelete: SetNull)
+
   @@index([userId])
   @@index([clubId])
   @@index([isCurrent])
 }
 
 model Statistics {
-  id          String    @id @default(uuid())
+  id          String   @id @default(uuid())
   userId      String
   clubId      String?
-  season      String              // "2023-2024", "Career"
-  gamesPlayed Int       @default(0)
-  goals       Int       @default(0)
-  assists     Int       @default(0)
-  points      Int       @default(0)  // goals + assists
-  wins        Int       @default(0)  // For coaches/goalies
-  losses      Int       @default(0)
-  draws       Int       @default(0)
-  cleanSheets Int       @default(0)  // For goalies
-  saves       Int       @default(0)  // For goalies
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  
-  user        User      @relation("UserStatistics", fields: [userId], references: [id], onDelete: Cascade)
-  club        Club?     @relation("ClubStatistics", fields: [clubId], references: [id], onDelete: SetNull)
-  
+  season      String // "2023-2024", "Career"
+  gamesPlayed Int      @default(0)
+  goals       Int      @default(0)
+  assists     Int      @default(0)
+  points      Int      @default(0) // goals + assists
+  wins        Int      @default(0) // For coaches/goalies
+  losses      Int      @default(0)
+  draws       Int      @default(0)
+  cleanSheets Int      @default(0) // For goalies
+  saves       Int      @default(0) // For goalies
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user User  @relation("UserStatistics", fields: [userId], references: [id], onDelete: Cascade)
+  club Club? @relation("ClubStatistics", fields: [clubId], references: [id], onDelete: SetNull)
+
   @@unique([userId, season, clubId])
   @@index([userId])
   @@index([clubId])
@@ -314,27 +320,101 @@ model Statistics {
 }
 
 model Conversation {
-  id           String    @id @default(uuid())
-  participants User[]    @relation("ConversationParticipants")
+  id        String   @id @default(uuid())
+  isGroup   Boolean  @default(false) // Support group chats
+  name      String? // Group name
+  avatar    String? // Group avatar
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  participants ConversationParticipant[]
   messages     Message[]
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  
+
   @@index([updatedAt])
 }
 
+model ConversationParticipant {
+  id                String   @id @default(uuid())
+  conversationId    String
+  userId            String
+  lastSeenMessageId String?
+  unreadCount       Int      @default(0)
+  joinedAt          DateTime @default(now())
+
+  conversation    Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  user            User         @relation("UserConversations", fields: [userId], references: [id], onDelete: Cascade)
+  lastSeenMessage Message?     @relation("LastSeenMessages", fields: [lastSeenMessageId], references: [id], onDelete: SetNull)
+
+  @@unique([conversationId, userId])
+  @@index([userId])
+  @@index([conversationId])
+}
+
 model Message {
-  id             String       @id @default(uuid())
-  content        String       @db.Text
-  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  id             String    @id @default(uuid())
+  content        String    @db.Text
   conversationId String
-  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
   senderId       String
-  isRead         Boolean      @default(false)
-  createdAt      DateTime     @default(now())
-  
+  isRead         Boolean   @default(false)
+  readAt         DateTime? // When message was read
+  imageUrl       String? // Image attachment
+  fileUrl        String? // File attachment
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  conversation Conversation              @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sender       User                      @relation("MessagesSent", fields: [senderId], references: [id], onDelete: Cascade)
+  lastSeenBy   ConversationParticipant[] @relation("LastSeenMessages")
+
   @@index([conversationId])
   @@index([senderId])
+  @@index([conversationId, createdAt])
+}
+
+model Share {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  createdAt DateTime @default(now())
+
+  user User @relation("UserShares", fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation("PostShares", fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@index([userId])
+  @@index([postId])
+  @@index([createdAt])
+}
+
+model Story {
+  id        String   @id @default(uuid())
+  userId    String
+  imageUrl  String?
+  videoUrl  String?
+  text      String?  @db.Text
+  expiresAt DateTime // 24 hours from creation
+  createdAt DateTime @default(now())
+
+  user  User        @relation("UserStories", fields: [userId], references: [id], onDelete: Cascade)
+  views StoryView[]
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@index([userId, expiresAt])
+}
+
+model StoryView {
+  id       String   @id @default(uuid())
+  storyId  String
+  userId   String
+  viewedAt DateTime @default(now())
+
+  story Story @relation(fields: [storyId], references: [id], onDelete: Cascade)
+  user  User  @relation("UserStoryViews", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([storyId, userId])
+  @@index([storyId])
+  @@index([userId])
 }
 
 enum Role {

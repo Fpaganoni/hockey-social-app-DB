@@ -179,17 +179,67 @@ type Statistics {
 
 type Conversation {
   id: ID!
-  participants: [User!]!
+  isGroup: Boolean!
+  name: String
+  avatar: String
+  participants: [ConversationParticipant!]!
   messages: [Message!]!
+  createdAt: String!
   updatedAt: String!
+}
+
+type ConversationParticipant {
+  id: ID!
+  conversationId: ID!
+  userId: ID!
+  lastSeenMessageId: ID
+  unreadCount: Int!
+  joinedAt: String!
+  user: User!
 }
 
 type Message {
   id: ID!
   content: String!
-  sender: User!
+  senderId: ID!
+  conversationId: ID!
   isRead: Boolean!
+  readAt: String
+  imageUrl: String
+  fileUrl: String
+  sender: User!
   createdAt: String!
+  updatedAt: String!
+}
+
+type Share {
+  id: ID!
+  userId: ID!
+  postId: ID!
+  createdAt: String!
+  user: User!
+  post: Post!
+}
+
+type Story {
+  id: ID!
+  userId: ID!
+  imageUrl: String
+  videoUrl: String
+  text: String
+  expiresAt: String!
+  createdAt: String!
+  user: User!
+  views: [StoryView!]!
+}
+
+type StoryView {
+  id: ID!
+  storyId: ID!
+  userId: ID!
+  viewedAt: String!
+  user: User!
+  story: Story!
 }
 
 type PaymentIntent {
