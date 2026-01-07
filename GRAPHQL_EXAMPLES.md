@@ -356,7 +356,8 @@ query {
     positionType
     club {
       name
-      location
+      city
+      country
       isVerified
     }
     country
@@ -391,14 +392,17 @@ query {
 
 ```graphql
 query {
-  jobOpportunities(country: "España") {
+  jobOpportunities(country: "🇪🇸 España") {
     id
     title
     positionType
     club {
       name
+      city
+      country
     }
     city
+    country
   }
 }
 ```

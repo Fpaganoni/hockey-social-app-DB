@@ -10,12 +10,20 @@ export class PostsService {
       take: limit || 50,
       skip: offset || 0,
       orderBy: { createdAt: "desc" },
+      include: {
+        user: true,
+        club: true,
+      },
     });
   }
 
   async findById(id: string) {
     return this.prisma.post.findUnique({
       where: { id },
+      include: {
+        user: true,
+        club: true,
+      },
     });
   }
 
@@ -23,6 +31,10 @@ export class PostsService {
     return this.prisma.post.findMany({
       where: { userId },
       orderBy: { createdAt: "desc" },
+      include: {
+        user: true,
+        club: true,
+      },
     });
   }
 
@@ -30,6 +42,10 @@ export class PostsService {
     return this.prisma.post.findMany({
       where: { clubId },
       orderBy: { createdAt: "desc" },
+      include: {
+        user: true,
+        club: true,
+      },
     });
   }
 

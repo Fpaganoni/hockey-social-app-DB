@@ -1,4 +1,6 @@
 import { Module } from "@nestjs/common";
+import { ServeStaticModule } from "@nestjs/serve-static";
+import { join } from "path";
 import { GraphqlModule } from "./graphql.module";
 import { PrismaService } from "./prisma.service";
 import { AuthModule } from "./auth/auth.module";
@@ -15,6 +17,10 @@ import { MessagingModule } from "./messaging/messaging.module";
 
 @Module({
   imports: [
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, "..", "public"),
+      serveRoot: "/",
+    }),
     GraphqlModule,
     AuthModule,
     UsersModule,

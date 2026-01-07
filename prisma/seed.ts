@@ -8,9 +8,17 @@ async function main() {
 
   // Clear existing data
   console.log("🗑️  Clearing existing data...");
+  await prisma.storyView.deleteMany();
+  await prisma.story.deleteMany();
+  await prisma.share.deleteMany();
+  await prisma.commentLike.deleteMany();
   await prisma.message.deleteMany();
+  await prisma.conversationParticipant.deleteMany();
   await prisma.conversation.deleteMany();
+  await prisma.jobApplication.deleteMany();
   await prisma.jobOpportunity.deleteMany();
+  await prisma.statistics.deleteMany();
+  await prisma.trajectory.deleteMany();
   await prisma.follow.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
@@ -24,91 +32,99 @@ async function main() {
   // Hash password for all mock users
   const hashedPassword = await bcrypt.hash("password123", 10);
 
-  // ========== CLUBS ==========
-  console.log("🏒 Creating clubs...");
+  // ========== FIELD HOCKEY CLUBS ==========
+  console.log("🏑 Creating field hockey clubs...");
 
   const clubs = await Promise.all([
-    // Spanish clubs
+    // Spanish field hockey clubs
     prisma.club.create({
       data: {
-        name: "FC Barcelona Hockey",
+        name: "Club de Campo Villa de Madrid",
+        city: "Madrid",
+        country: "🇪🇸 España",
+        league: "División de Honor",
+        foundedYear: 1929,
+        description: "One of the most prestigious field hockey clubs in Spain",
+        bio: "Excellence in field hockey since 1929",
+        logo: "https://logo.clearbit.com/clubdecampo.es",
+        isVerified: true,
+      },
+    }),
+    prisma.club.create({
+      data: {
+        name: "RC Polo Barcelona",
         city: "Barcelona",
         country: "🇪🇸 España",
-        league: "OK Liga",
-        foundedYear: 1942,
+        league: "División de Honor",
+        foundedYear: 1897,
         description:
-          "One of the most successful hockey clubs in Spain with a rich history",
-        bio: "Excellence in roller hockey since 1942",
-        logo: "https://logo.clearbit.com/fcbarcelona.com",
+          "Historic Barcelona field hockey club with multiple championships",
+        bio: "Tradition and excellence in field hockey",
+        logo: "https://logo.clearbit.com/rcpolo.com",
         isVerified: true,
       },
     }),
     prisma.club.create({
       data: {
-        name: "Club Patín Alcorcón",
-        city: "Alcorcón",
+        name: "Real Club de Polo",
+        city: "Barcelona",
         country: "🇪🇸 España",
-        league: "OK Liga",
-        foundedYear: 1968,
+        league: "División de Honor",
+        foundedYear: 1942,
         isVerified: true,
       },
     }),
     prisma.club.create({
       data: {
-        name: "Reus Deportiu",
-        city: "Reus",
+        name: "CD Terrassa HC",
+        city: "Terrassa",
         country: "🇪🇸 España",
-        league: "OK Liga",
-        foundedYear: 1909,
-        isVerified: false,
-      },
-    }),
-    prisma.club.create({
-      data: {
-        name: "Liceo Coruña",
-        city: "A Coruña",
-        country: "🇪🇸 España",
-        league: "OK Liga",
-        foundedYear: 1972,
+        league: "División de Honor",
+        foundedYear: 1952,
+        description: "European champion field hockey club",
         isVerified: true,
       },
     }),
     prisma.club.create({
       data: {
-        name: "HC Majadahonda",
-        city: "Majadahonda",
+        name: "Atlètic Terrassa HC",
+        city: "Terrassa",
         country: "🇪🇸 España",
-        league: "Segunda División",
-        foundedYear: 1988,
-        isVerified: false,
+        league: "División de Honor",
+        foundedYear: 1952,
+        isVerified: true,
       },
     }),
-    // Argentinian clubs
+    // Argentinian field hockey clubs
     prisma.club.create({
       data: {
-        name: "Club Atlético River Plate",
+        name: "Club Atlético San Isidro",
         city: "Buenos Aires",
         country: "🇦🇷 Argentina",
-        league: "Liga Nacional",
-        foundedYear: 1931,
+        league: "Metropolitano A",
+        foundedYear: 1902,
+        description: "Historic Argentine field hockey powerhouse",
         isVerified: true,
       },
     }),
     prisma.club.create({
       data: {
-        name: "Club Arquitectura",
+        name: "Club Atletico Belgrano",
         city: "Buenos Aires",
         country: "🇦🇷 Argentina",
-        league: "Liga Nacional",
-        isVerified: false,
+        league: "Metropolitano A",
+        foundedYear: 1896,
+        isVerified: true,
       },
     }),
     prisma.club.create({
       data: {
-        name: "Gimnasia y Esgrima LP",
-        city: "La Plata",
+        name: "Gimnasia y Esgrima Buenos Aires",
+        city: "Buenos Aires",
         country: "🇦🇷 Argentina",
-        league: "Liga Nacional",
+        league: "Metropolitano A",
+        foundedYear: 1880,
+        description: "One of Argentina's oldest sports clubs",
         isVerified: true,
       },
     }),
@@ -117,17 +133,40 @@ async function main() {
         name: "Club Italiano",
         city: "Buenos Aires",
         country: "🇦🇷 Argentina",
-        league: "Liga Nacional",
+        league: "Metropolitano A",
+        foundedYear: 1900,
         isVerified: false,
       },
     }),
     prisma.club.create({
       data: {
-        name: "San Fernando Bueno",
-        city: "San Fernando",
+        name: "Lomas Athletic Club",
+        city: "Lomas de Zamora",
         country: "🇦🇷 Argentina",
-        league: "Liga Metropolitana",
-        isVerified: false,
+        league: "Metropolitano A",
+        foundedYear: 1891,
+        isVerified: true,
+      },
+    }),
+    // International clubs
+    prisma.club.create({
+      data: {
+        name: "HC Rotterdam",
+        city: "Rotterdam",
+        country: "🇳🇱 Netherlands",
+        league: "Hoofdklasse",
+        foundedYear: 1925,
+        isVerified: true,
+      },
+    }),
+    prisma.club.create({
+      data: {
+        name: "Amsterdam HC",
+        city: "Amsterdam",
+        country: "🇳🇱 Netherlands",
+        league: "Hoofdklasse",
+        foundedYear: 1892,
+        isVerified: true,
       },
     }),
   ]);
@@ -135,128 +174,208 @@ async function main() {
   console.log(`✅ Created ${clubs.length} clubs\n`);
 
   // ========== PLAYERS ==========
-  console.log("⛸️  Creating players...");
+  console.log("🏃 Creating field hockey players...");
 
   const playerData = [
     {
-      username: "messi_hockey",
-      email: "messi@hockey-test.com",
-      name: "Lionel Messi H.",
+      username: "lucia_jimenez",
+      email: "lucia@hockey-test.com",
+      name: "Lucía Jiménez",
       position: "Forward",
+      country: "🇪🇸",
+      city: "Madrid",
     },
     {
       username: "pablo_alvarez",
       email: "pablo@hockey-test.com",
       name: "Pablo Álvarez",
       position: "Midfielder",
+      country: "🇪🇸",
+      city: "Barcelona",
     },
     {
       username: "lucas_martinez",
       email: "lucas@hockey-test.com",
       name: "Lucas Martínez",
-      position: "Defense",
+      position: "Defender",
+      country: "🇦🇷",
+      city: "Buenos Aires",
     },
     {
-      username: "diego_fernandez",
-      email: "diego@hockey-test.com",
-      name: "Diego Fernández",
+      username: "sofia_fernandez",
+      email: "sofia@hockey-test.com",
+      name: "Sofía Fernández",
       position: "Goalkeeper",
+      country: "🇪🇸",
+      city: "Madrid",
     },
     {
       username: "juan_rodriguez",
       email: "juan@hockey-test.com",
       name: "Juan Rodríguez",
       position: "Forward",
+      country: "🇦🇷",
+      city: "Buenos Aires",
     },
     {
-      username: "carlos_lopez",
-      email: "carlos@hockey-test.com",
-      name: "Carlos López",
-      position: "Defense",
+      username: "maria_lopez",
+      email: "maria@hockey-test.com",
+      name: "María López",
+      position: "Defender",
+      country: "🇪🇸",
+      city: "Barcelona",
     },
     {
       username: "mateo_garcia",
       email: "mateo@hockey-test.com",
       name: "Mateo García",
       position: "Midfielder",
+      country: "🇦🇷",
+      city: "Córdoba",
     },
     {
-      username: "andres_sanchez",
-      email: "andres@hockey-test.com",
-      name: "Andrés Sánchez",
+      username: "valentina_sanchez",
+      email: "valentina@hockey-test.com",
+      name: "Valentina Sánchez",
       position: "Forward",
+      country: "🇦🇷",
+      city: "Rosario",
     },
     {
       username: "miguel_torres",
       email: "miguel@hockey-test.com",
       name: "Miguel Torres",
-      position: "Defense",
+      position: "Defender",
+      country: "🇪🇸",
+      city: "Valencia",
     },
     {
-      username: "javier_ramirez",
-      email: "javier@hockey-test.com",
-      name: "Javier Ramírez",
+      username: "camila_ramirez",
+      email: "camila@hockey-test.com",
+      name: "Camila Ramírez",
       position: "Goalkeeper",
+      country: "🇦🇷",
+      city: "Mendoza",
     },
     {
       username: "alejandro_flores",
       email: "alejandro@hockey-test.com",
       name: "Alejandro Flores",
       position: "Midfielder",
+      country: "🇪🇸",
+      city: "Sevilla",
     },
     {
-      username: "fernando_moreno",
-      email: "fernando@hockey-test.com",
-      name: "Fernando Moreno",
+      username: "isabella_moreno",
+      email: "isabella@hockey-test.com",
+      name: "Isabella Moreno",
       position: "Forward",
+      country: "🇦🇷",
+      city: "La Plata",
     },
     {
       username: "ricardo_gutierrez",
       email: "ricardo@hockey-test.com",
       name: "Ricardo Gutiérrez",
-      position: "Defense",
+      position: "Defender",
+      country: "🇪🇸",
+      city: "Bilbao",
     },
     {
-      username: "sergio_diaz",
-      email: "sergio@hockey-test.com",
-      name: "Sergio Díaz",
+      username: "martina_diaz",
+      email: "martina@hockey-test.com",
+      name: "Martina Díaz",
       position: "Midfielder",
+      country: "🇦🇷",
+      city: "Tucumán",
     },
     {
       username: "roberto_vazquez",
       email: "roberto@hockey-test.com",
       name: "Roberto Vázquez",
       position: "Forward",
+      country: "🇪🇸",
+      city: "Zaragoza",
     },
     {
-      username: "eduardo_castillo",
-      email: "eduardo@hockey-test.com",
-      name: "Eduardo Castillo",
+      username: "florencia_castillo",
+      email: "florencia@hockey-test.com",
+      name: "Florencia Castillo",
       position: "Goalkeeper",
+      country: "🇦🇷",
+      city: "Salta",
     },
     {
       username: "francisco_ramos",
       email: "francisco@hockey-test.com",
       name: "Francisco Ramos",
-      position: "Defense",
+      position: "Defender",
+      country: "🇪🇸",
+      city: "Granada",
     },
     {
-      username: "daniel_mendoza",
-      email: "daniel@hockey-test.com",
-      name: "Daniel Mendoza",
+      username: "catalina_mendoza",
+      email: "catalina@hockey-test.com",
+      name: "Catalina Mendoza",
       position: "Midfielder",
+      country: "🇦🇷",
+      city: "San Juan",
     },
     {
       username: "manuel_ortiz",
       email: "manuel@hockey-test.com",
       name: "Manuel Ortiz",
       position: "Forward",
+      country: "🇪🇸",
+      city: "Málaga",
     },
     {
-      username: "antonio_silva",
-      email: "antonio@hockey-test.com",
-      name: "Antonio Silva",
-      position: "Defense",
+      username: "delfina_silva",
+      email: "delfina@hockey-test.com",
+      name: "Delfina Silva",
+      position: "Defender",
+      country: "🇦🇷",
+      city: "Mar del Plata",
+    },
+    {
+      username: "diego_herrera",
+      email: "diego@hockey-test.com",
+      name: "Diego Herrera",
+      position: "Midfielder",
+      country: "🇪🇸",
+      city: "Murcia",
+    },
+    {
+      username: "agustina_navarro",
+      email: "agustina@hockey-test.com",
+      name: "Agustina Navarro",
+      position: "Forward",
+      country: "🇦🇷",
+      city: "Neuquén",
+    },
+    {
+      username: "carlos_ruiz",
+      email: "carlos@hockey-test.com",
+      name: "Carlos Ruiz",
+      position: "Goalkeeper",
+      country: "🇪🇸",
+      city: "Santander",
+    },
+    {
+      username: "milagros_vega",
+      email: "milagros@hockey-test.com",
+      name: "Milagros Vega",
+      position: "Defender",
+      country: "🇦🇷",
+      city: "Santa Fe",
+    },
+    {
+      username: "javier_castro",
+      email: "javier@hockey-test.com",
+      name: "Javier Castro",
+      position: "Midfielder",
+      country: "🇪🇸",
+      city: "Oviedo",
     },
   ];
 
@@ -270,12 +389,12 @@ async function main() {
           password: hashedPassword,
           role: "PLAYER",
           position: player.position,
-          bio: `Passionate hockey player. Training hard every day! 🏒`,
+          bio: `Passionate field hockey player. Training hard every day! 🏑`,
           avatar: `https://i.pravatar.cc/150?u=${player.username}`,
-          country: index % 2 === 0 ? "🇪🇸" : "🇦🇷",
-          city: index % 2 === 0 ? "Barcelona" : "Buenos Aires",
-          yearsOfExperience: 5 + (index % 10),
-          isVerified: index % 5 === 0,
+          country: player.country,
+          city: player.city,
+          yearsOfExperience: 3 + (index % 12),
+          isVerified: index % 4 === 0,
         },
       })
     )
@@ -284,58 +403,64 @@ async function main() {
   console.log(`✅ Created ${players.length} players\n`);
 
   // ========== COACHES ==========
-  console.log("👔 Creating coaches...");
+  console.log("👔 Creating field hockey coaches...");
 
   const coachData = [
     {
-      username: "coach_pep",
-      email: "pep@hockey-test.com",
-      name: "Pep Guardiola H.",
+      username: "coach_martinez",
+      email: "coach.martinez@hockey-test.com",
+      name: "Carlos Martínez",
+      country: "🇪🇸",
+      city: "Madrid",
     },
     {
-      username: "coach_mourinho",
-      email: "mourinho@hockey-test.com",
-      name: "José Mourinho",
+      username: "coach_perez",
+      email: "coach.perez@hockey-test.com",
+      name: "Ana Pérez",
+      country: "🇪🇸",
+      city: "Barcelona",
     },
     {
-      username: "coach_simeone",
-      email: "simeone@hockey-test.com",
-      name: "Diego Simeone",
+      username: "coach_gonzalez",
+      email: "coach.gonzalez@hockey-test.com",
+      name: "Roberto González",
+      country: "🇦🇷",
+      city: "Buenos Aires",
     },
     {
-      username: "coach_bielsa",
-      email: "bielsa@hockey-test.com",
-      name: "Marcelo Bielsa",
+      username: "coach_fernandez",
+      email: "coach.fernandez@hockey-test.com",
+      name: "Laura Fernández",
+      country: "🇦🇷",
+      city: "Rosario",
     },
     {
-      username: "coach_pochettino",
-      email: "pochettino@hockey-test.com",
-      name: "Mauricio Pochettino",
+      username: "coach_sanchez",
+      email: "coach.sanchez@hockey-test.com",
+      name: "Miguel Sánchez",
+      country: "🇪🇸",
+      city: "Valencia",
     },
     {
-      username: "coach_ancelotti",
-      email: "ancelotti@hockey-test.com",
-      name: "Carlo Ancelotti",
+      username: "coach_rodriguez",
+      email: "coach.rodriguez@hockey-test.com",
+      name: "Patricia Rodríguez",
+      country: "🇦🇷",
+      city: "Córdoba",
     },
     {
-      username: "coach_zidane",
-      email: "zidane@hockey-test.com",
-      name: "Zinedine Zidane",
+      username: "coach_garcia",
+      email: "coach.garcia@hockey-test.com",
+      name: "Fernando García",
+      country: "🇪🇸",
+      city: "Sevilla",
     },
     {
-      username: "coach_xavi",
-      email: "xavi@hockey-test.com",
-      name: "Xavi Hernández",
-    },
-    {
-      username: "coach_valverde",
-      email: "valverde@hockey-test.com",
-      name: "Ernesto Valverde",
-    },
-    {
-      username: "coach_sampaoli",
-      email: "sampaoli@hockey-test.com",
-      name: "Jorge Sampaoli",
+      username: "coach_lopez",
+      email: "coach.lopez@hockey-test.com",
+      name: "Gabriela López",
+      country: "🇦🇷",
+      city: "Mendoza",
     },
   ];
 
@@ -348,14 +473,14 @@ async function main() {
           name: coach.name,
           password: hashedPassword,
           role: "COACH",
-          bio: `Professional hockey coach with ${
-            10 + index
-          } years of experience. Let's win together!`,
+          bio: `Professional field hockey coach with ${
+            10 + index * 2
+          } years of experience. Developing champions on and off the field! 🏑`,
           avatar: `https://i.pravatar.cc/150?u=${coach.username}`,
-          country: index % 2 === 0 ? "🇪🇸" : "🇦🇷",
-          city: index % 2 === 0 ? "Madrid" : "Buenos Aires",
-          yearsOfExperience: 10 + index,
-          isVerified: index % 3 === 0,
+          country: coach.country,
+          city: coach.city,
+          yearsOfExperience: 10 + index * 2,
+          isVerified: index % 2 === 0,
         },
       })
     )
@@ -364,59 +489,118 @@ async function main() {
   console.log(`✅ Created ${coaches.length} coaches\n`);
 
   // ========== POSTS ==========
-  console.log("📝 Creating posts...");
+  console.log("📝 Creating field hockey posts...");
 
   const postContents = [
-    "Amazing training session today! Feeling stronger every day 💪🏒",
+    "Amazing training session today! Feeling stronger every day 💪🏑",
     "Game day tomorrow! Let's bring home the win! 🔥",
     "New season, new goals. Ready to give it all! ⚡",
     "Great team chemistry today. We're ready for the championship! 🏆",
     "Recovery day but the mind never rests. Studying game tapes 🎥",
+    "Just scored the winning goal in overtime! What a rush! 🎯",
+    "Proud of my team's performance today. Hard work pays off! 💯",
+    "Early morning training hits different when you love what you do 🌅",
+    "Shoutout to my teammates for the amazing assist! Teamwork makes the dream work! 🤝",
+    "Working on penalty corners today. Precision is everything! 🎯",
+    "First game of the season and we dominated! Let's keep this momentum! 🚀",
+    "Tough loss today, but we'll come back stronger. That's the spirit! 💪",
+    "Nothing beats the feeling of playing on home turf! 🏟️",
+    "Training in the rain? No problem. We're built different! ☔🏑",
+    "Celebrating our club's 100th anniversary! Proud to be part of this legacy! 🎉",
+    "International tournament next week. Representing my country! 🌍",
+    "Just had the best practice session with the national team! 🇦🇷🇪🇸",
+    "Goalkeeper training is no joke! Respect to all my fellow keepers! 🧤",
+    "Speed and agility drills today. Getting faster every week! ⚡",
+    "Match day atmosphere is unbeatable! Thanks to all the fans! 👏",
+    "Working with an amazing coach who pushes me to be my best! 🙏",
+    "Summer hockey camp starts next week! Can't wait to meet the kids! 👶🏑",
+    "Pre-season fitness test complete. Ready for the new season! 📊",
+    "Beautiful day for outdoor training! Love this sport! ☀️",
+    "Championship final in 3 days. The preparation is real! 🏆",
+    "Honored to captain this amazing team! Leadership is a privilege! ©️",
+    "Recovery session: ice baths and stretching. Taking care of the body! 🧊",
+    "Watching game footage and learning from mistakes. Always improving! 📹",
+    "New hockey sticks arrived! Can't wait to test them out! 🏑✨",
+    "Team bonding dinner tonight. This squad is family! 🍽️❤️",
   ];
 
+  // Field hockey images from Cloudinary CDN (production-ready)
   const postImages = [
-    "https://images.unsplash.com/photo-1517649763962-0c623066013b",
-    "https://images.unsplash.com/photo-1546519638-68e109498ffc",
-    "https://images.unsplash.com/photo-1579952363873-27f3bade9f55",
-    "https://images.unsplash.com/photo-1461532257246-777de18cd58b",
-    "https://images.unsplash.com/photo-1566085849139-df876562723c",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796905/hockey-connect/posts/hockey_action.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796907/hockey-connect/posts/hockey_training.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796908/hockey-connect/posts/hockey_celebration.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796910/hockey-connect/posts/hockey_goalkeeper.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796913/hockey-connect/posts/hockey_equipment.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796915/hockey-connect/posts/hockey_match.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796917/hockey-connect/posts/hockey_youth.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796918/hockey-connect/posts/hockey_stadium.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796920/hockey-connect/posts/hockey_victory.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796922/hockey-connect/posts/hockey_practice.jpg",
   ];
 
   const posts = [];
+  const allUsers = [...players, ...coaches];
 
-  // User posts (20 posts)
-  for (let i = 0; i < 20; i++) {
-    const randomUser = [...players, ...coaches][
-      Math.floor(Math.random() * (players.length + coaches.length))
-    ];
+  // Create 40 varied user posts
+  for (let i = 0; i < 40; i++) {
+    const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+    const hasImage = Math.random() > 0.2; // 80% of posts have images
+    const hasMultipleImages = hasImage && Math.random() > 0.6; // 40% of image posts have multiple images
+
     const post = await prisma.post.create({
       data: {
         content: postContents[Math.floor(Math.random() * postContents.length)],
         userId: randomUser.id,
-        imageUrl: postImages[Math.floor(Math.random() * postImages.length)],
-        images: [
-          postImages[Math.floor(Math.random() * postImages.length)],
-          postImages[Math.floor(Math.random() * postImages.length)],
-        ], // Multiple images for carousel
-        visibility: i % 5 === 0 ? "FRIENDS" : "PUBLIC",
-        isPinned: i % 10 === 0,
+        imageUrl: hasImage
+          ? postImages[Math.floor(Math.random() * postImages.length)]
+          : null,
+        images: hasMultipleImages
+          ? [
+              postImages[Math.floor(Math.random() * postImages.length)],
+              postImages[Math.floor(Math.random() * postImages.length)],
+              postImages[Math.floor(Math.random() * postImages.length)],
+            ]
+          : [],
+        visibility: i % 7 === 0 ? "FRIENDS" : "PUBLIC",
+        isPinned: i % 15 === 0,
       },
     });
     posts.push(post);
   }
 
-  // Club posts (10 posts)
-  for (let i = 0; i < 10; i++) {
+  // Club posts (15 posts)
+  const clubPostContents = [
+    "🏑 Exciting news! Registration for the new season is now open!",
+    "Congratulations to our U18 team for winning the regional championship! 🏆",
+    "Join us this Saturday for our open training day! Everyone welcome! 🙌",
+    "We're proud to announce our new partnership with [Sponsor]. Together we're stronger! 💪",
+    "Match day! Come support our first team against our rivals! 🔥",
+    "Throwback to our historic championship win 5 years ago! Great memories! 📸",
+    "New club merchandise available now in our online store! 🛍️",
+    "Thanks to all our volunteers who make this club special! ❤️",
+    "Summer hockey camp registration opens next week! Limited spots! 🏕️",
+    "Congratulations to [Player] for being selected for the national team! 🇪🇸🇦🇷",
+    "Facilities upgrade complete! New state-of-the-art training ground! 🏟️",
+    "Club trials next month! Looking for talented players to join our family! 🔍",
+    "Celebrating 50 years of field hockey excellence! 🎉",
+    "Important: Season schedule has been updated. Check the website for details! 📅",
+    "Our women's team just qualified for the European Cup! Historic moment! 🌍",
+  ];
+
+  for (let i = 0; i < 15; i++) {
     const randomClub = clubs[Math.floor(Math.random() * clubs.length)];
+    const randomAdmin =
+      players[Math.floor(Math.random() * Math.min(5, players.length))];
+
     const post = await prisma.post.create({
       data: {
-        content: `🏒 Exciting news from ${randomClub.name}! New season tickets available now!`,
-        userId: players[0].id, // Posted by a club admin user
+        content: clubPostContents[i],
+        userId: randomAdmin.id,
         clubId: randomClub.id,
         isClubPost: true,
-        imageUrl: "https://logo.clearbit.com/hockey.com",
+        imageUrl: postImages[Math.floor(Math.random() * postImages.length)],
         visibility: "PUBLIC",
-        isPinned: i === 0, // Pin first club post
+        isPinned: i < 2,
       },
     });
     posts.push(post);
@@ -431,16 +615,25 @@ async function main() {
     "¡Increíble! 🔥",
     "Let's go team! 💪",
     "Amazing work!",
-    "¡Vamos! 🏒",
+    "¡Vamos! 🏑",
+    "So proud of you!",
+    "Keep it up! 👏",
+    "Legendary performance!",
+    "You're an inspiration! ⭐",
+    "This is what dedication looks like!",
+    "Can't wait for the next match!",
+    "Love the energy! ⚡",
+    "Best team in the league! 🏆",
+    "Respect! 🙌",
+    "Hard work paying off!",
+    "Absolutely brilliant! 💯",
   ];
 
   let commentCount = 0;
   for (const post of posts) {
-    const numComments = Math.floor(Math.random() * 3) + 1;
+    const numComments = Math.floor(Math.random() * 5) + 1; // 1-5 comments per post
     for (let i = 0; i < numComments; i++) {
-      const randomUser = [...players, ...coaches][
-        Math.floor(Math.random() * (players.length + coaches.length))
-      ];
+      const randomUser = allUsers[Math.floor(Math.random() * allUsers.length)];
       await prisma.comment.create({
         data: {
           content:
@@ -460,16 +653,15 @@ async function main() {
 
   let likeCount = 0;
   for (const post of posts) {
-    const numLikes = Math.floor(Math.random() * 10) + 3;
-    for (let i = 0; i < numLikes; i++) {
-      const randomUser = [...players, ...coaches][
-        Math.floor(Math.random() * (players.length + coaches.length))
-      ];
+    const numLikes = Math.floor(Math.random() * 15) + 5; // 5-20 likes per post
+    const shuffledUsers = [...allUsers].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < Math.min(numLikes, shuffledUsers.length); i++) {
       try {
         await prisma.like.create({
           data: {
             postId: post.id,
-            userId: randomUser.id,
+            userId: shuffledUsers[i].id,
           },
         });
         likeCount++;
@@ -485,13 +677,10 @@ async function main() {
   console.log("👥 Creating follows...");
 
   let followCount = 0;
-  for (let i = 0; i < 30; i++) {
-    const follower = [...players, ...coaches][
-      Math.floor(Math.random() * (players.length + coaches.length))
-    ];
-    const following = [...players, ...coaches][
-      Math.floor(Math.random() * (players.length + coaches.length))
-    ];
+  // Create a more realistic follow network
+  for (let i = 0; i < 60; i++) {
+    const follower = allUsers[Math.floor(Math.random() * allUsers.length)];
+    const following = allUsers[Math.floor(Math.random() * allUsers.length)];
 
     if (follower.id !== following.id) {
       try {
@@ -517,31 +706,59 @@ async function main() {
 
   const jobData = [
     {
-      title: "Delantero Senior",
+      title: "Forward Player Needed",
       type: "PLAYER",
-      desc: "Club busca delantero experimentado",
-      salary: 25000,
+      desc: "Looking for an experienced forward to join our first team. Must have at least 3 years of competitive experience.",
+      salary: 28000,
       currency: "EUR",
     },
     {
-      title: "Entrenador Juvenil",
+      title: "Youth Team Coach",
       type: "COACH",
-      desc: "Se necesita entrenador Sub-18",
+      desc: "We need an enthusiastic coach for our U16 team. Experience with youth development preferred.",
+      salary: 32000,
+      currency: "EUR",
+    },
+    {
+      title: "Defensive Player",
+      type: "PLAYER",
+      desc: "Defensive position open for the upcoming season. Strong tackling skills required.",
+      salary: 24000,
+      currency: "EUR",
+    },
+    {
+      title: "Goalkeeper Required",
+      type: "PLAYER",
+      desc: "First team goalkeeper position available. Must have national league experience.",
       salary: 30000,
       currency: "EUR",
     },
     {
-      title: "Portero Suplente",
-      type: "PLAYER",
-      desc: "Buscamos portero para reforzar plantel",
-      salary: 20000,
+      title: "Head Coach Position",
+      type: "COACH",
+      desc: "Senior coaching role for our premier team. 5+ years experience required.",
+      salary: 45000,
       currency: "EUR",
     },
     {
-      title: "Preparador Físico",
+      title: "Fitness Trainer",
       type: "STAFF",
-      desc: "Se requiere preparador físico titulado",
-      salary: 22000,
+      desc: "Certified fitness trainer needed for professional team preparation.",
+      salary: 26000,
+      currency: "EUR",
+    },
+    {
+      title: "Midfielder - Professional Contract",
+      type: "PLAYER",
+      desc: "Seeking creative midfielder with excellent passing ability.",
+      salary: 25000,
+      currency: "EUR",
+    },
+    {
+      title: "Assistant Coach",
+      type: "COACH",
+      desc: "Assistant coaching position for first team. Tactical knowledge essential.",
+      salary: 28000,
       currency: "EUR",
     },
   ];
@@ -557,9 +774,10 @@ async function main() {
         country: randomClub.country,
         city: randomClub.city,
         salary: job.salary,
-        currency: job.currency as any, // Currency enum
-        status: "OPEN",
-        benefits: "Seguro médico, alojamiento, equipamiento completo",
+        currency: job.currency as any,
+        status: Math.random() > 0.2 ? "OPEN" : "FILLED", // 80% open
+        benefits:
+          "Medical insurance, accommodation support, full equipment, training facilities",
       },
     });
   }
@@ -567,6 +785,15 @@ async function main() {
   console.log(`✅ Created ${jobData.length} job opportunities\n`);
 
   console.log("🎉 Database seeded successfully!\n");
+  console.log("📊 Summary:");
+  console.log(`   - ${clubs.length} clubs`);
+  console.log(`   - ${players.length} players`);
+  console.log(`   - ${coaches.length} coaches`);
+  console.log(`   - ${posts.length} posts`);
+  console.log(`   - ${commentCount} comments`);
+  console.log(`   - ${likeCount} likes`);
+  console.log(`   - ${followCount} follows`);
+  console.log(`   - ${jobData.length} job opportunities\n`);
 }
 
 main()
