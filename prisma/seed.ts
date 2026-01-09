@@ -708,6 +708,7 @@ async function main() {
     {
       title: "Forward Player Needed",
       type: "PLAYER",
+      level: "PROFESSIONAL",
       desc: "Looking for an experienced forward to join our first team. Must have at least 3 years of competitive experience.",
       salary: 28000,
       currency: "EUR",
@@ -715,6 +716,7 @@ async function main() {
     {
       title: "Youth Team Coach",
       type: "COACH",
+      level: "AMATEUR",
       desc: "We need an enthusiastic coach for our U16 team. Experience with youth development preferred.",
       salary: 32000,
       currency: "EUR",
@@ -722,6 +724,7 @@ async function main() {
     {
       title: "Defensive Player",
       type: "PLAYER",
+      level: "AMATEUR",
       desc: "Defensive position open for the upcoming season. Strong tackling skills required.",
       salary: 24000,
       currency: "EUR",
@@ -729,6 +732,7 @@ async function main() {
     {
       title: "Goalkeeper Required",
       type: "PLAYER",
+      level: "PROFESSIONAL",
       desc: "First team goalkeeper position available. Must have national league experience.",
       salary: 30000,
       currency: "EUR",
@@ -736,6 +740,7 @@ async function main() {
     {
       title: "Head Coach Position",
       type: "COACH",
+      level: "PROFESSIONAL",
       desc: "Senior coaching role for our premier team. 5+ years experience required.",
       salary: 45000,
       currency: "EUR",
@@ -743,6 +748,7 @@ async function main() {
     {
       title: "Fitness Trainer",
       type: "STAFF",
+      level: "PROFESSIONAL",
       desc: "Certified fitness trainer needed for professional team preparation.",
       salary: 26000,
       currency: "EUR",
@@ -750,6 +756,7 @@ async function main() {
     {
       title: "Midfielder - Professional Contract",
       type: "PLAYER",
+      level: "PROFESSIONAL",
       desc: "Seeking creative midfielder with excellent passing ability.",
       salary: 25000,
       currency: "EUR",
@@ -757,6 +764,7 @@ async function main() {
     {
       title: "Assistant Coach",
       type: "COACH",
+      level: "PROFESSIONAL",
       desc: "Assistant coaching position for first team. Tactical knowledge essential.",
       salary: 28000,
       currency: "EUR",
@@ -770,6 +778,7 @@ async function main() {
         title: job.title,
         description: job.desc,
         positionType: job.type as any,
+        level: job.level as any,
         clubId: randomClub.id,
         country: randomClub.country,
         city: randomClub.city,

@@ -223,6 +223,7 @@ model JobOpportunity {
   title        String
   description  String       @db.Text
   positionType PositionType
+  level        JobLevel     @default(PROFESSIONAL)
   clubId       String
   country      String
   city         String
@@ -467,4 +468,9 @@ enum JobStatus {
   OPEN
   CLOSED
   FILLED
+}
+
+enum JobLevel {
+  PROFESSIONAL
+  AMATEUR
 }

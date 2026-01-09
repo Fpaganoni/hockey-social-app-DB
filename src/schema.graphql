@@ -113,6 +113,7 @@ type JobOpportunity {
   title: String!
   description: String!
   positionType: String!
+  level: String!
   club: Club!
   country: String!
   city: String!
@@ -277,6 +278,7 @@ type Query {
   # Job Opportunities
   jobOpportunities(
     positionType: String
+    level: String
     country: String
     city: String
     status: String
@@ -386,6 +388,7 @@ type Mutation {
     title: String!
     description: String!
     positionType: String!
+    level: String!
     clubId: String!
     country: String!
     city: String!
