@@ -1,14 +1,23 @@
-import { Resolver, Mutation, Args, Query } from "@nestjs/graphql";
+import {
+  Resolver,
+  Mutation,
+  Args,
+  Query,
+  ResolveField,
+  Parent,
+} from "@nestjs/graphql";
 import { UsersService } from "./users.service";
 import { AuthService } from "../auth/auth.service";
 import { CloudinaryService } from "../integrations/cloudinary.service";
+import { PrismaService } from "../prisma.service";
 
 @Resolver("User")
 export class UsersResolver {
   constructor(
     private usersService: UsersService,
     private authService: AuthService,
-    private cloudinary: CloudinaryService
+    private cloudinary: CloudinaryService,
+    private prisma: PrismaService,
   ) {}
 
   @Mutation(() => String)
@@ -16,7 +25,7 @@ export class UsersResolver {
     @Args("email") email: string,
     @Args("name") name: string,
     @Args("username", { nullable: true }) username?: string,
-    @Args("password") password?: string
+    @Args("password") password?: string,
   ) {
     try {
       const user = await this.usersService.createUser({
@@ -38,7 +47,7 @@ export class UsersResolver {
   @Mutation(() => String)
   async login(
     @Args("email") email: string,
-    @Args("password") password: string
+    @Args("password") password: string,
   ) {
     const user = await this.authService.validateUser(email, password);
     if (!user) throw new Error("Invalid credentials");
@@ -49,7 +58,7 @@ export class UsersResolver {
   @Mutation(() => Boolean)
   async uploadAvatar(
     @Args("userId") userId: string,
-    @Args("base64") base64: string
+    @Args("base64") base64: string,
   ) {
     try {
       // accepts a data-url or base64 string
@@ -97,7 +106,7 @@ export class UsersResolver {
     @Args("country", { nullable: true }) country?: string,
     @Args("city", { nullable: true }) city?: string,
     @Args("clubId", { nullable: true }) clubId?: string,
-    @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number
+    @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number,
   ) {
     return this.usersService.updateUser(id, {
       name,
@@ -109,6 +118,34 @@ export class UsersResolver {
       city,
       clubId,
       yearsOfExperience,
+    });
+  }
+
+  // Field resolver for statistics - returns aggregated career stats
+  @ResolveField()
+  async statistics(@Parent() user: any) {
+    const { id } = user;
+
+    // Get the "Career" statistics record which contains aggregated totals
+    const careerStats = await this.prisma.statistics.findFirst({
+      where: {
+        userId: id,
+        season: "Career",
+      },
+      include: { club: true },
+    });
+
+    return careerStats;
+  }
+
+  // Field resolver for trajectories
+  @ResolveField()
+  async trajectories(@Parent() user: any) {
+    const { id } = user;
+    return this.prisma.trajectory.findMany({
+      where: { userId: id },
+      include: { club: true },
+      orderBy: { order: "asc" },
     });
   }
 }

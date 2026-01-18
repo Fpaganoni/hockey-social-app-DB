@@ -395,9 +395,10 @@ async function main() {
           city: player.city,
           yearsOfExperience: 3 + (index % 12),
           isVerified: index % 4 === 0,
+          isEmailVerified: index % 3 === 0, // ~33% have verified emails
         },
-      })
-    )
+      }),
+    ),
   );
 
   console.log(`✅ Created ${players.length} players\n`);
@@ -481,9 +482,10 @@ async function main() {
           city: coach.city,
           yearsOfExperience: 10 + index * 2,
           isVerified: index % 2 === 0,
+          isEmailVerified: index % 2 === 0, // 50% have verified emails
         },
-      })
-    )
+      }),
+    ),
   );
 
   console.log(`✅ Created ${coaches.length} coaches\n`);
@@ -793,6 +795,235 @@ async function main() {
 
   console.log(`✅ Created ${jobData.length} job opportunities\n`);
 
+  // ========== STATISTICS ==========
+  console.log("📊 Creating statistics...");
+
+  let statsCount = 0;
+
+  // Create statistics for players
+  for (let i = 0; i < players.length; i++) {
+    const player = players[i];
+    const position = player.position;
+
+    // Career stats (aggregate)
+    const careerStats = await prisma.statistics.create({
+      data: {
+        userId: player.id,
+        season: "Career",
+        gamesPlayed: 120 + Math.floor(Math.random() * 100),
+        goals:
+          position === "Forward"
+            ? 30 + Math.floor(Math.random() * 50)
+            : position === "Midfielder"
+              ? 15 + Math.floor(Math.random() * 30)
+              : position === "Defender"
+                ? 5 + Math.floor(Math.random() * 15)
+                : 0, // Goalkeeper
+        assists:
+          position === "Midfielder"
+            ? 40 + Math.floor(Math.random() * 30)
+            : position === "Forward"
+              ? 20 + Math.floor(Math.random() * 20)
+              : position === "Defender"
+                ? 10 + Math.floor(Math.random() * 15)
+                : 0, // Goalkeeper
+        points: 0, // Will be calculated
+        wins: 0,
+        losses: 0,
+        draws: 0,
+        cleanSheets:
+          position === "Goalkeeper" ? 30 + Math.floor(Math.random() * 40) : 0,
+        saves:
+          position === "Goalkeeper" ? 400 + Math.floor(Math.random() * 300) : 0,
+      },
+    });
+
+    // Update points
+    await prisma.statistics.update({
+      where: { id: careerStats.id },
+      data: { points: careerStats.goals + careerStats.assists },
+    });
+
+    statsCount += 1;
+  }
+
+  // Create statistics for coaches
+  for (const coach of coaches) {
+    // Career stats only
+    await prisma.statistics.create({
+      data: {
+        userId: coach.id,
+        season: "Career",
+        gamesPlayed: 200 + Math.floor(Math.random() * 150),
+        goals: 0,
+        assists: 0,
+        points: 0,
+        wins: 100 + Math.floor(Math.random() * 80),
+        losses: 60 + Math.floor(Math.random() * 50),
+        draws: 40 + Math.floor(Math.random() * 30),
+        cleanSheets: 0,
+        saves: 0,
+      },
+    });
+
+    statsCount += 1; // Only 1 stat record per coach now
+  }
+
+  console.log(`✅ Created ${statsCount} statistics records\n`);
+
+  // ========== TRAJECTORIES ==========
+  console.log("🏆 Creating career trajectories...");
+
+  let trajCount = 0;
+
+  // Sample trajectory templates based on the image
+  const trajectoryTemplates = [
+    {
+      organization: "Youth Academy",
+      period: "2010-2015",
+      description:
+        "Beginning of my career - Started playing field hockey at the age of 10.",
+      isCurrent: false,
+      order: 0,
+    },
+    {
+      organization: "Local Club",
+      period: "2015-2020",
+      description:
+        "First professional experience - Developed fundamental skills and game understanding.",
+      isCurrent: false,
+      order: 1,
+    },
+    {
+      organization: "National Team U21",
+      period: "2018-2021",
+      description:
+        "Represented my country at youth level - Gained international experience.",
+      isCurrent: false,
+      order: 2,
+    },
+  ];
+
+  // Create trajectories for ALL players (not just first 10)
+  for (let i = 0; i < players.length; i++) {
+    const player = players[i];
+    const playerClub = clubs[i % clubs.length];
+
+    // Early career (youth)
+    await prisma.trajectory.create({
+      data: {
+        userId: player.id,
+        title: "Youth Player",
+        organization: `${player.city} Youth Academy`,
+        period: "2010-2016",
+        description: `Beginning of my career as a ${player.position} - Started playing field hockey at the age of 10.`,
+        startDate: new Date("2010-01-01"),
+        endDate: new Date("2016-12-31"),
+        isCurrent: false,
+        order: 0,
+      },
+    });
+
+    // Mid career (club)
+    await prisma.trajectory.create({
+      data: {
+        userId: player.id,
+        clubId: playerClub.id,
+        title: player.position,
+        organization: playerClub.name,
+        period: "2017-2023",
+        description:
+          "First professional contract - Developed my skills and became a regular starter.",
+        startDate: new Date("2017-01-01"),
+        endDate: new Date("2023-12-31"),
+        isCurrent: false,
+        order: 1,
+      },
+    });
+
+    // International experience (if applicable - every 3rd player)
+    if (i % 3 === 0) {
+      const intlClub = clubs[(i + 5) % clubs.length];
+      await prisma.trajectory.create({
+        data: {
+          userId: player.id,
+          clubId: intlClub.id,
+          title: player.position,
+          organization: intlClub.name,
+          period: "2023-2024",
+          description: `First international experience in ${intlClub.country} - First season, promotion to top division. Second season, competitive performance at elite level.`,
+          startDate: new Date("2023-01-01"),
+          endDate: new Date("2024-12-31"),
+          isCurrent: false,
+          order: 2,
+        },
+      });
+      trajCount++;
+    }
+
+    // Current position
+    const currentClub = clubs[(i + 2) % clubs.length];
+    await prisma.trajectory.create({
+      data: {
+        userId: player.id,
+        clubId: currentClub.id,
+        title: player.position,
+        organization: currentClub.name,
+        period: "2024-Present",
+        description: `Current club - Playing at ${currentClub.league || "professional"} level.`,
+        startDate: new Date("2024-01-01"),
+        isCurrent: true,
+        order: 3,
+      },
+    });
+
+    trajCount += 3; // At least 3 trajectories per player (4 for every 3rd player)
+  }
+
+  // Create trajectories for coaches
+  for (let i = 0; i < Math.min(5, coaches.length); i++) {
+    const coach = coaches[i];
+    const coachClub = clubs[i % clubs.length];
+
+    // Assistant coach position
+    await prisma.trajectory.create({
+      data: {
+        userId: coach.id,
+        clubId: coachClub.id,
+        title: "Assistant Coach",
+        organization: coachClub.name,
+        period: "2015-2020",
+        description:
+          "Started coaching career as assistant coach - Focused on tactical development and player training.",
+        startDate: new Date("2015-01-01"),
+        endDate: new Date("2020-12-31"),
+        isCurrent: false,
+        order: 0,
+      },
+    });
+
+    // Head coach position
+    const currentCoachClub = clubs[(i + 3) % clubs.length];
+    await prisma.trajectory.create({
+      data: {
+        userId: coach.id,
+        clubId: currentCoachClub.id,
+        title: "Head Coach",
+        organization: currentCoachClub.name,
+        period: "2020-Present",
+        description:
+          "Promoted to head coach - Leading the team to championships and developing young talent.",
+        startDate: new Date("2020-01-01"),
+        isCurrent: true,
+        order: 1,
+      },
+    });
+
+    trajCount += 2;
+  }
+
+  console.log(`✅ Created ${trajCount} career trajectories\n`);
+
   console.log("🎉 Database seeded successfully!\n");
   console.log("📊 Summary:");
   console.log(`   - ${clubs.length} clubs`);
@@ -802,7 +1033,9 @@ async function main() {
   console.log(`   - ${commentCount} comments`);
   console.log(`   - ${likeCount} likes`);
   console.log(`   - ${followCount} follows`);
-  console.log(`   - ${jobData.length} job opportunities\n`);
+  console.log(`   - ${jobData.length} job opportunities`);
+  console.log(`   - ${statsCount} statistics records`);
+  console.log(`   - ${trajCount} career trajectories\n`);
 }
 
 main()

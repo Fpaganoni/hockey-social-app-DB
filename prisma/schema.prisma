@@ -23,6 +23,7 @@ model User {
   clubId            String? // NEW - current club affiliation
   yearsOfExperience Int? // NEW - years playing/coaching
   isVerified        Boolean  @default(false)
+  isEmailVerified   Boolean  @default(false) // Email verification status
   isActive          Boolean  @default(true) // NEW - account active status
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
@@ -53,6 +54,9 @@ model User {
   shares     Share[]     @relation("UserShares")
   stories    Story[]     @relation("UserStories")
   storyViews StoryView[] @relation("UserStoryViews")
+
+  // Email verification
+  emailVerificationTokens EmailVerificationToken[] @relation("UserVerificationTokens")
 
   @@index([email])
   @@index([username])
@@ -474,3 +478,19 @@ enum JobLevel {
   PROFESSIONAL
   AMATEUR
 }
+
+model EmailVerificationToken {
+  id        String   @id @default(uuid())
+  token     String   @unique @default(uuid())
+  userId    String
+  expiresAt DateTime
+  used      Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  user User @relation("UserVerificationTokens", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([expiresAt])
+}
+

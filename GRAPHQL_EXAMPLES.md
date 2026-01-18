@@ -16,6 +16,7 @@ query {
     email
     role
     isVerified
+    isEmailVerified
     profile {
       displayName
       bio
@@ -34,6 +35,7 @@ query {
     username
     role
     isVerified
+    isEmailVerified
     profile {
       displayName
       avatarUrl
@@ -68,12 +70,77 @@ query {
     email
     role
     isVerified
+    isEmailVerified
     profile {
       displayName
       bio
       avatarUrl
     }
   }
+}
+```
+
+### Usuario con estadísticas y trayectoria
+
+```graphql
+query GetUserProfile($id: String!) {
+  user(id: $id) {
+    id
+    name
+    role
+    position
+    bio
+    country
+    city
+    avatar
+
+    # Estadísticas del jugador
+    statistics {
+      id
+      season
+      gamesPlayed
+      goals
+      assists
+      points
+      wins
+      losses
+      draws
+      cleanSheets
+      saves
+      club {
+        name
+        city
+      }
+    }
+
+    # Trayectoria profesional
+    trajectories {
+      id
+      title
+      organization
+      period
+      description
+      startDate
+      endDate
+      isCurrent
+      order
+      club {
+        id
+        name
+        logo
+        city
+        country
+      }
+    }
+  }
+}
+```
+
+**Variables:**
+
+```json
+{
+  "id": "PEGA-USER-ID-AQUI"
 }
 ```
 

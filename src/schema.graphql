@@ -14,9 +14,12 @@ type User {
   club: Club
   yearsOfExperience: Int
   isVerified: Boolean!
+  isEmailVerified: Boolean!
   isActive: Boolean!
   createdAt: String!
   updatedAt: String!
+  statistics: Statistics
+  trajectories: [Trajectory!]!
 }
 
 type Club {
