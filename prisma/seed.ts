@@ -379,9 +379,33 @@ async function main() {
     },
   ];
 
+  // Helper function to determine gender from name
+  const getGenderFromName = (name: string): "male" | "female" => {
+    const femaleNames = [
+      "Lucía",
+      "Sofía",
+      "María",
+      "Valentina",
+      "Camila",
+      "Isabella",
+      "Martina",
+      "Florencia",
+      "Catalina",
+      "Delfina",
+      "Agustina",
+      "Milagros",
+    ];
+    const firstName = name.split(" ")[0];
+    return femaleNames.includes(firstName) ? "female" : "male";
+  };
+
   const players = await Promise.all(
-    playerData.map((player, index) =>
-      prisma.user.create({
+    playerData.map((player, index) => {
+      const gender = getGenderFromName(player.name);
+      const genderPath = gender === "female" ? "women" : "men";
+      const imageNumber = index % 80; // randomuser.me has 0-99, use 0-79 for variety
+
+      return prisma.user.create({
         data: {
           email: player.email,
           username: player.username,
@@ -390,15 +414,15 @@ async function main() {
           role: "PLAYER",
           position: player.position,
           bio: `Passionate field hockey player. Training hard every day! 🏑`,
-          avatar: `https://i.pravatar.cc/150?u=${player.username}`,
+          avatar: `https://randomuser.me/api/portraits/${genderPath}/${imageNumber}.jpg`,
           country: player.country,
           city: player.city,
           yearsOfExperience: 3 + (index % 12),
           isVerified: index % 4 === 0,
           isEmailVerified: index % 3 === 0, // ~33% have verified emails
         },
-      }),
-    ),
+      });
+    }),
   );
 
   console.log(`✅ Created ${players.length} players\n`);
@@ -466,8 +490,12 @@ async function main() {
   ];
 
   const coaches = await Promise.all(
-    coachData.map((coach, index) =>
-      prisma.user.create({
+    coachData.map((coach, index) => {
+      const gender = getGenderFromName(coach.name);
+      const genderPath = gender === "female" ? "women" : "men";
+      const imageNumber = (index + 25) % 80; // Offset to avoid same images as players
+
+      return prisma.user.create({
         data: {
           email: coach.email,
           username: coach.username,
@@ -477,15 +505,15 @@ async function main() {
           bio: `Professional field hockey coach with ${
             10 + index * 2
           } years of experience. Developing champions on and off the field! 🏑`,
-          avatar: `https://i.pravatar.cc/150?u=${coach.username}`,
+          avatar: `https://randomuser.me/api/portraits/${genderPath}/${imageNumber}.jpg`,
           country: coach.country,
           city: coach.city,
           yearsOfExperience: 10 + index * 2,
           isVerified: index % 2 === 0,
           isEmailVerified: index % 2 === 0, // 50% have verified emails
         },
-      }),
-    ),
+      });
+    }),
   );
 
   console.log(`✅ Created ${coaches.length} coaches\n`);
@@ -980,29 +1008,65 @@ async function main() {
     trajCount += 3; // At least 3 trajectories per player (4 for every 3rd player)
   }
 
-  // Create trajectories for coaches
-  for (let i = 0; i < Math.min(5, coaches.length); i++) {
+  // Create trajectories for ALL coaches (not just first 5)
+  for (let i = 0; i < coaches.length; i++) {
     const coach = coaches[i];
     const coachClub = clubs[i % clubs.length];
 
-    // Assistant coach position
+    // Playing career (many coaches were former players)
     await prisma.trajectory.create({
       data: {
         userId: coach.id,
         clubId: coachClub.id,
-        title: "Assistant Coach",
+        title: "Professional Player",
         organization: coachClub.name,
-        period: "2015-2020",
+        period: "2005-2012",
         description:
-          "Started coaching career as assistant coach - Focused on tactical development and player training.",
-        startDate: new Date("2015-01-01"),
-        endDate: new Date("2020-12-31"),
+          "Professional playing career - Gained valuable experience as a player which now informs my coaching philosophy.",
+        startDate: new Date("2005-01-01"),
+        endDate: new Date("2012-12-31"),
         isCurrent: false,
         order: 0,
       },
     });
 
-    // Head coach position
+    // Assistant coach position
+    const assistantClub = clubs[(i + 1) % clubs.length];
+    await prisma.trajectory.create({
+      data: {
+        userId: coach.id,
+        clubId: assistantClub.id,
+        title: "Assistant Coach",
+        organization: assistantClub.name,
+        period: "2013-2018",
+        description:
+          "Started coaching career as assistant coach - Focused on tactical development and player training.",
+        startDate: new Date("2013-01-01"),
+        endDate: new Date("2018-12-31"),
+        isCurrent: false,
+        order: 1,
+      },
+    });
+
+    // Youth team head coach (transition role)
+    const youthClub = clubs[(i + 2) % clubs.length];
+    await prisma.trajectory.create({
+      data: {
+        userId: coach.id,
+        clubId: youthClub.id,
+        title: "Youth Team Head Coach",
+        organization: youthClub.name,
+        period: "2019-2022",
+        description:
+          "Led youth development program - Focused on developing young talent and building strong team foundations.",
+        startDate: new Date("2019-01-01"),
+        endDate: new Date("2022-12-31"),
+        isCurrent: false,
+        order: 2,
+      },
+    });
+
+    // Head coach position (current)
     const currentCoachClub = clubs[(i + 3) % clubs.length];
     await prisma.trajectory.create({
       data: {
@@ -1010,16 +1074,16 @@ async function main() {
         clubId: currentCoachClub.id,
         title: "Head Coach",
         organization: currentCoachClub.name,
-        period: "2020-Present",
+        period: "2023-Present",
         description:
-          "Promoted to head coach - Leading the team to championships and developing young talent.",
-        startDate: new Date("2020-01-01"),
+          "Promoted to head coach of first team - Leading the team to championships and developing young talent.",
+        startDate: new Date("2023-01-01"),
         isCurrent: true,
-        order: 1,
+        order: 3,
       },
     });
 
-    trajCount += 2;
+    trajCount += 4; // 4 trajectories per coach
   }
 
   console.log(`✅ Created ${trajCount} career trajectories\n`);
