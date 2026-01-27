@@ -624,15 +624,48 @@ query {
 
 ### Registrarse
 
+#### Como jugador (default)
+
 ```graphql
 mutation {
   register(
     email: "nuevo@ejemplo.com"
+    name: "Juan Pérez"
     username: "nuevo_jugador"
     password: "password123"
   )
 }
 ```
+
+#### Como entrenador
+
+```graphql
+mutation {
+  register(
+    email: "coach@ejemplo.com"
+    name: "Ana García"
+    username: "coach_ana"
+    password: "password123"
+    role: "COACH"
+  )
+}
+```
+
+#### Como administrador de club
+
+```graphql
+mutation {
+  register(
+    email: "admin@clubhockey.com"
+    name: "Carlos Martínez"
+    username: "admin_carlos"
+    password: "password123"
+    role: "CLUB_ADMIN"
+  )
+}
+```
+
+> **Nota:** El campo `role` es opcional. Si no se especifica, el usuario se registra como `PLAYER` por defecto. Los roles permitidos son: `PLAYER`, `COACH`, `CLUB_ADMIN`.
 
 ### Login
 

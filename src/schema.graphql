@@ -306,6 +306,7 @@ type Mutation {
     name: String!
     username: String
     password: String!
+    role: String
   ): String!
   login(email: String!, password: String!): String!
   uploadAvatar(userId: String!, base64: String!): Boolean!

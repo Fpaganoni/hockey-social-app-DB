@@ -26,13 +26,28 @@ export class UsersResolver {
     @Args("name") name: string,
     @Args("username", { nullable: true }) username?: string,
     @Args("password") password?: string,
+    @Args("role", { nullable: true }) role?: string,
   ) {
     try {
+      // Normalize role to uppercase for case-insensitive validation
+      const normalizedRole = role?.toUpperCase();
+
+      // Validate role if provided
+      if (
+        normalizedRole &&
+        !["PLAYER", "COACH", "CLUB_ADMIN"].includes(normalizedRole)
+      ) {
+        throw new Error(
+          "Invalid role. Allowed roles: PLAYER, COACH, CLUB_ADMIN",
+        );
+      }
+
       const user = await this.usersService.createUser({
         email,
         name,
         username,
         password,
+        role: normalizedRole,
       });
       const token = await this.authService.login(user);
       return token.access_token;

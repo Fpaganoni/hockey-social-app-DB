@@ -11,6 +11,7 @@ export class UsersService {
     name: string; // REQUIRED
     username?: string;
     password?: string;
+    role?: string;
   }) {
     const hashed = data.password
       ? await bcrypt.hash(data.password, 10)
@@ -21,6 +22,7 @@ export class UsersService {
         name: data.name,
         username: data.username,
         password: hashed,
+        role: data.role as any,
       },
     });
   }
@@ -70,7 +72,7 @@ export class UsersService {
       city?: string;
       clubId?: string;
       yearsOfExperience?: number;
-    }
+    },
   ) {
     return this.prisma.user.update({
       where: { id },
