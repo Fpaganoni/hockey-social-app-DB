@@ -235,6 +235,8 @@ type Story {
   createdAt: String!
   user: User!
   views: [StoryView!]!
+  viewsCount: Int!
+  isViewed(userId: String!): Boolean!
 }
 
 type StoryView {
@@ -297,6 +299,11 @@ type Query {
   myConversations(userId: String!): [Conversation!]!
   conversation(id: String!): Conversation
   messages(conversationId: String!): [Message!]!
+
+  # Stories
+  activeStories(userId: String!): [Story!]!
+  userStories(userId: String!): [Story!]!
+  storyViewers(storyId: String!): [StoryView!]!
 }
 
 type Mutation {
@@ -429,4 +436,14 @@ type Mutation {
 
   # Payments
   createPaymentIntent(amount: Float!, currency: String): PaymentIntent!
+
+  # Stories
+  createStory(
+    userId: String!
+    imageUrl: String
+    videoUrl: String
+    text: String
+  ): Story!
+  viewStory(storyId: String!, userId: String!): StoryView!
+  deleteStory(id: String!): Boolean!
 }

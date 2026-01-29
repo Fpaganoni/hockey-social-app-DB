@@ -707,7 +707,42 @@ async function main() {
   console.log("👥 Creating follows...");
 
   let followCount = 0;
-  // Create a more realistic follow network
+
+  // IMPORTANT: Create follows between users who have stories
+  // This ensures that when we query activeStories, we see stories from different users
+  const usersWithStories = [
+    players[0], // Lucía
+    players[1], // Pablo
+    players[3], // Sofía
+    players[4], // Juan
+    players[5], // María
+    players[6], // Mateo
+    players[7], // Valentina
+    coaches[0], // Coach Carlos
+  ];
+
+  // Make each user with stories follow all other users with stories
+  for (const follower of usersWithStories) {
+    for (const following of usersWithStories) {
+      if (follower.id !== following.id) {
+        try {
+          await prisma.follow.create({
+            data: {
+              followerType: "USER",
+              followerId: follower.id,
+              followingType: "USER",
+              followingId: following.id,
+            },
+          });
+          followCount++;
+        } catch (error) {
+          // Skip duplicates
+        }
+      }
+    }
+  }
+
+  // Create additional random follow network
   for (let i = 0; i < 60; i++) {
     const follower = allUsers[Math.floor(Math.random() * allUsers.length)];
     const following = allUsers[Math.floor(Math.random() * allUsers.length)];
@@ -1088,6 +1123,275 @@ async function main() {
 
   console.log(`✅ Created ${trajCount} career trajectories\n`);
 
+  // ========== STORIES ==========
+  console.log("📸 Creating hockey stories...");
+
+  // Helper function to get time offset in hours
+  const getDateOffset = (hoursAgo: number) => {
+    const date = new Date();
+    date.setHours(date.getHours() - hoursAgo);
+    return date;
+  };
+
+  // Helper function to get expiration time (24h from creation)
+  const getExpiresAt = (createdAt: Date) => {
+    const expiresAt = new Date(createdAt);
+    expiresAt.setHours(expiresAt.getHours() + 24);
+    return expiresAt;
+  };
+
+  const stories = [];
+
+  // Story content templates
+  const storyTexts = [
+    "Morning drills with the squad! 💪🏑",
+    "Saving every shot today! 🧤✨",
+    "Training hard for the big match! 🔥",
+    "WE DID IT! First goal of the season! 🔥🎯",
+    "Game face on! 🎯",
+    "CHAMPIONS! 🏆 Hard work pays off!",
+    "New stick, new season! ⚡",
+    "Home sweet home! Ready for tonight's match! 🏟️",
+    "One team, one dream! 💙🧡",
+    "Recovery day but still crushing it! 💯",
+    "Pre-game vibes! Let's goooo! 🚀",
+    "Best training session ever! 🙌",
+    "Feeling unstoppable today! ⚡🏑",
+    "Team bonding time! Love these people! ❤️",
+  ];
+
+  const imageUrls = [
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_1_1769710105645.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_2_1769710118312.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_3_1769710132072.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_celebration_1_1769710152004.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_action_1_1769710166063.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_victory_celebration_1769710180726.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_equipment_closeup_1769710201870.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_field_stadium_1769710214264.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_team_huddle_1769710229976.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_motivational_graphic_1_1769710251075.png",
+    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_motivational_graphic_2_1769710266642.png",
+  ];
+
+  // ACTIVE STORIES - Create multiple stories per user (10-15 each)
+
+  // User 1: Lucía (15 stories)
+  for (let i = 0; i < 15; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[0].id, // Lucía
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 3 === 0 ? storyTexts[i % storyTexts.length] : null,
+        createdAt: getDateOffset(1 + i * 0.3),
+        expiresAt: getExpiresAt(getDateOffset(1 + i * 0.3)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 2: Pablo (12 stories)
+  for (let i = 0; i < 12; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[1].id, // Pablo
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 4 === 0 ? storyTexts[(i + 2) % storyTexts.length] : null,
+        createdAt: getDateOffset(2 + i * 0.4),
+        expiresAt: getExpiresAt(getDateOffset(2 + i * 0.4)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 3: Sofía (14 stories)
+  for (let i = 0; i < 14; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[3].id, // Sofía (Goalkeeper)
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 5 === 0 ? storyTexts[(i + 3) % storyTexts.length] : null,
+        createdAt: getDateOffset(3 + i * 0.35),
+        expiresAt: getExpiresAt(getDateOffset(3 + i * 0.35)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 4: Juan (10 stories)
+  for (let i = 0; i < 10; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[4].id, // Juan
+        imageUrl: imageUrls[i % imageUrls.length],
+        text:
+          i === 0
+            ? "Pre-game energy! 🔥⚡"
+            : i === 5
+              ? "Victory feels amazing! 🏆"
+              : null,
+        createdAt: getDateOffset(5 + i * 0.5),
+        expiresAt: getExpiresAt(getDateOffset(5 + i * 0.5)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 5: María (13 stories)
+  for (let i = 0; i < 13; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[5].id, // María
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 6 === 0 ? storyTexts[(i + 4) % storyTexts.length] : null,
+        createdAt: getDateOffset(4 + i * 0.4),
+        expiresAt: getExpiresAt(getDateOffset(4 + i * 0.4)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 6: Mateo (11 stories)
+  for (let i = 0; i < 11; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[6].id, // Mateo
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 4 === 0 ? storyTexts[(i + 5) % storyTexts.length] : null,
+        createdAt: getDateOffset(6 + i * 0.45),
+        expiresAt: getExpiresAt(getDateOffset(6 + i * 0.45)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 7: Valentina (12 stories)
+  for (let i = 0; i < 12; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: players[7].id, // Valentina
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 5 === 0 ? storyTexts[(i + 6) % storyTexts.length] : null,
+        createdAt: getDateOffset(7 + i * 0.38),
+        expiresAt: getExpiresAt(getDateOffset(7 + i * 0.38)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // User 8: Coach Carlos (10 stories)
+  for (let i = 0; i < 10; i++) {
+    const story = await prisma.story.create({
+      data: {
+        userId: coaches[0].id, // Coach Carlos
+        imageUrl: imageUrls[i % imageUrls.length],
+        text: i % 3 === 0 ? storyTexts[(i + 7) % storyTexts.length] : null,
+        createdAt: getDateOffset(8 + i * 0.5),
+        expiresAt: getExpiresAt(getDateOffset(8 + i * 0.5)),
+      },
+    });
+    stories.push(story);
+  }
+
+  // Text-only stories from various users
+  const textOnlyStory1 = await prisma.story.create({
+    data: {
+      userId: players[2].id,
+      text: "Big game in 2 hours. Feeling nervous but ready! Let's do this team! 🔥",
+      createdAt: getDateOffset(3),
+      expiresAt: getExpiresAt(getDateOffset(3)),
+    },
+  });
+  stories.push(textOnlyStory1);
+
+  const textOnlyStory2 = await prisma.story.create({
+    data: {
+      userId: players[8].id,
+      text: "3 hour training session ✅\nIce bath ✅\nProtein shake ✅\nRecovery mode activated 💯",
+      createdAt: getDateOffset(11),
+      expiresAt: getExpiresAt(getDateOffset(11)),
+    },
+  });
+  stories.push(textOnlyStory2);
+
+  // EXPIRED STORIES (for testing - created more than 24 hours ago)
+
+  // Expired Story 1
+  const expiredStory1 = await prisma.story.create({
+    data: {
+      userId: players[6].id,
+      imageUrl:
+        "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_action_1_1769710166063.png",
+      text: "Yesterday's match was intense!",
+      createdAt: getDateOffset(30),
+      expiresAt: getExpiresAt(getDateOffset(30)),
+    },
+  });
+  stories.push(expiredStory1);
+
+  // Expired Story 2
+  const expiredStory2 = await prisma.story.create({
+    data: {
+      userId: players[9].id,
+      text: "Pre-season training started 2 days ago!",
+      createdAt: getDateOffset(48),
+      expiresAt: getExpiresAt(getDateOffset(48)),
+    },
+  });
+  stories.push(expiredStory2);
+
+  // Expired Story 3
+  const expiredStory3 = await prisma.story.create({
+    data: {
+      userId: coaches[4].id,
+      imageUrl:
+        "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_field_stadium_1769710214264.png",
+      text: "Stadium preparations from last week",
+      createdAt: getDateOffset(26),
+      expiresAt: getExpiresAt(getDateOffset(26)),
+    },
+  });
+  stories.push(expiredStory3);
+
+  console.log(
+    `✅ Created ${stories.length} stories (${stories.filter((s) => s.expiresAt > new Date()).length} active, ${stories.filter((s) => s.expiresAt <= new Date()).length} expired)\n`,
+  );
+
+  // ========== STORY VIEWS ==========
+  console.log("👁️  Creating story views...");
+
+  let viewCount = 0;
+  // Add views to active stories
+  const activeStories = stories.filter((s) => s.expiresAt > new Date());
+
+  for (const story of activeStories) {
+    // Random number of views (3-10 per story)
+    const numViews = Math.floor(Math.random() * 8) + 3;
+    const shuffledUsers = [...allUsers].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < Math.min(numViews, shuffledUsers.length); i++) {
+      // Don't let users view their own stories
+      if (shuffledUsers[i].id !== story.userId) {
+        try {
+          await prisma.storyView.create({
+            data: {
+              storyId: story.id,
+              userId: shuffledUsers[i].id,
+              viewedAt: new Date(
+                story.createdAt.getTime() + Math.random() * 3600000,
+              ), // Random time after creation
+            },
+          });
+          viewCount++;
+        } catch (error) {
+          // Skip duplicates
+        }
+      }
+    }
+  }
+
+  console.log(`✅ Created ${viewCount} story views\n`);
+
   console.log("🎉 Database seeded successfully!\n");
   console.log("📊 Summary:");
   console.log(`   - ${clubs.length} clubs`);
@@ -1099,7 +1403,9 @@ async function main() {
   console.log(`   - ${followCount} follows`);
   console.log(`   - ${jobData.length} job opportunities`);
   console.log(`   - ${statsCount} statistics records`);
-  console.log(`   - ${trajCount} career trajectories\n`);
+  console.log(`   - ${trajCount} career trajectories`);
+  console.log(`   - ${stories.length} stories`);
+  console.log(`   - ${viewCount} story views\n`);
 }
 
 main()

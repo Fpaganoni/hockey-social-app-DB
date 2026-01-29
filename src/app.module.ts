@@ -14,6 +14,7 @@ import { PostsModule } from "./posts/posts.module";
 import { FollowModule } from "./follow/follow.module";
 import { JobsModule } from "./jobs/jobs.module";
 import { MessagingModule } from "./messaging/messaging.module";
+import { StoriesModule } from "./stories/stories.module";
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { MessagingModule } from "./messaging/messaging.module";
     FollowModule,
     JobsModule,
     MessagingModule,
+    StoriesModule,
   ],
   providers: [PrismaService],
 })

@@ -620,6 +620,181 @@ query {
 
 ---
 
+## 📸 STORIES
+
+### Ver historias activas de usuarios que sigo
+
+```graphql
+query {
+  activeStories(userId: "TU-USER-ID") {
+    id
+    imageUrl
+    videoUrl
+    text
+    createdAt
+    expiresAt
+    user {
+      id
+      name
+      username
+      avatar
+    }
+    viewsCount
+  }
+}
+```
+
+### Ver historias de un usuario específico
+
+```graphql
+query {
+  userStories(userId: "USER-ID") {
+    id
+    imageUrl
+    videoUrl
+    text
+    createdAt
+    expiresAt
+    viewsCount
+    user {
+      name
+      username
+      avatar
+    }
+  }
+}
+```
+
+### Ver quién vio una historia
+
+```graphql
+query {
+  storyViewers(storyId: "STORY-ID") {
+    id
+    viewedAt
+    user {
+      id
+      name
+      username
+      avatar
+    }
+  }
+}
+```
+
+### Crear historia con imagen y texto
+
+```graphql
+mutation {
+  createStory(
+    userId: "TU-USER-ID"
+    imageUrl: "https://example.com/image.jpg"
+    text: "¡Gran entrenamiento hoy! 💪🏑"
+  ) {
+    id
+    imageUrl
+    text
+    createdAt
+    expiresAt
+    user {
+      name
+    }
+  }
+}
+```
+
+### Crear historia solo con texto
+
+```graphql
+mutation {
+  createStory(
+    userId: "TU-USER-ID"
+    text: "¡Partido en 2 horas! Vamos equipo! 🔥"
+  ) {
+    id
+    text
+    expiresAt
+  }
+}
+```
+
+### Crear historia solo con imagen
+
+```graphql
+mutation {
+  createStory(
+    userId: "TU-USER-ID"
+    imageUrl: "https://example.com/training.jpg"
+  ) {
+    id
+    imageUrl
+    expiresAt
+  }
+}
+```
+
+### Ver una historia (marcarla como vista)
+
+```graphql
+mutation {
+  viewStory(storyId: "STORY-ID", userId: "TU-USER-ID") {
+    id
+    viewedAt
+    user {
+      name
+    }
+  }
+}
+```
+
+### Eliminar una historia
+
+```graphql
+mutation {
+  deleteStory(id: "STORY-ID")
+}
+```
+
+### Query completa con todas las historias activas
+
+```graphql
+query GetActiveStories($userId: String!) {
+  activeStories(userId: $userId) {
+    id
+    imageUrl
+    videoUrl
+    text
+    createdAt
+    expiresAt
+    viewsCount
+    user {
+      id
+      name
+      username
+      avatar
+    }
+    views {
+      id
+      viewedAt
+      user {
+        name
+        avatar
+      }
+    }
+  }
+}
+```
+
+**Variables:**
+
+```json
+{
+  "userId": "PEGA-USER-ID-AQUI"
+}
+```
+
+---
+
 ## 🔐 AUTH (ya existentes)
 
 ### Registrarse
