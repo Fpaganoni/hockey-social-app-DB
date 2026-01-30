@@ -711,14 +711,14 @@ async function main() {
   // IMPORTANT: Create follows between users who have stories
   // This ensures that when we query activeStories, we see stories from different users
   const usersWithStories = [
-    players[0], // Lucía
-    players[1], // Pablo
-    players[3], // Sofía
-    players[4], // Juan
-    players[5], // María
-    players[6], // Mateo
-    players[7], // Valentina
-    coaches[0], // Coach Carlos
+    // First 15 players who create stories
+    ...players.slice(0, 15),
+    // First 3 coaches who create stories
+    ...coaches.slice(0, 3),
+    // Additional players with text-only stories
+    players[16],
+    players[17],
+    players[18],
   ];
 
   // Make each user with stories follow all other users with stories
@@ -1160,159 +1160,84 @@ async function main() {
     "Team bonding time! Love these people! ❤️",
   ];
 
+  // Using Cloudinary images (same as posts) for stories
   const imageUrls = [
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_1_1769710105645.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_2_1769710118312.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_training_session_3_1769710132072.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_celebration_1_1769710152004.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_action_1_1769710166063.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_victory_celebration_1769710180726.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_equipment_closeup_1769710201870.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_field_stadium_1769710214264.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_team_huddle_1769710229976.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_motivational_graphic_1_1769710251075.png",
-    "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_motivational_graphic_2_1769710266642.png",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796905/hockey-connect/posts/hockey_action.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796907/hockey-connect/posts/hockey_training.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796908/hockey-connect/posts/hockey_celebration.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796910/hockey-connect/posts/hockey_goalkeeper.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796913/hockey-connect/posts/hockey_equipment.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796915/hockey-connect/posts/hockey_match.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796917/hockey-connect/posts/hockey_youth.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796918/hockey-connect/posts/hockey_stadium.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796920/hockey-connect/posts/hockey_victory.jpg",
+    "https://res.cloudinary.com/dlv9qzhzr/image/upload/v1767796922/hockey-connect/posts/hockey_practice.jpg",
   ];
 
-  // ACTIVE STORIES - Create multiple stories per user (10-15 each)
+  // ACTIVE STORIES - Create 4-5 stories for MANY different users (better carousel diversity)
 
-  // User 1: Lucía (15 stories)
-  for (let i = 0; i < 15; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[0].id, // Lucía
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 3 === 0 ? storyTexts[i % storyTexts.length] : null,
-        createdAt: getDateOffset(1 + i * 0.3),
-        expiresAt: getExpiresAt(getDateOffset(1 + i * 0.3)),
-      },
-    });
-    stories.push(story);
-  }
+  // Create stories for 18+ different users (4-5 stories each)
+  const usersWhoCreateStories = [
+    // Players (15 users)
+    ...players.slice(0, 15),
+    // Coaches (3 users)
+    ...coaches.slice(0, 3),
+  ];
 
-  // User 2: Pablo (12 stories)
-  for (let i = 0; i < 12; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[1].id, // Pablo
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 4 === 0 ? storyTexts[(i + 2) % storyTexts.length] : null,
-        createdAt: getDateOffset(2 + i * 0.4),
-        expiresAt: getExpiresAt(getDateOffset(2 + i * 0.4)),
-      },
-    });
-    stories.push(story);
-  }
+  let storyIndex = 0;
+  for (let userIdx = 0; userIdx < usersWhoCreateStories.length; userIdx++) {
+    const user = usersWhoCreateStories[userIdx];
+    const numStories = 4 + (userIdx % 2); // Alternate between 4 and 5 stories
+    const hoursAgo = 1 + userIdx * 0.5;
 
-  // User 3: Sofía (14 stories)
-  for (let i = 0; i < 14; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[3].id, // Sofía (Goalkeeper)
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 5 === 0 ? storyTexts[(i + 3) % storyTexts.length] : null,
-        createdAt: getDateOffset(3 + i * 0.35),
-        expiresAt: getExpiresAt(getDateOffset(3 + i * 0.35)),
-      },
-    });
-    stories.push(story);
-  }
-
-  // User 4: Juan (10 stories)
-  for (let i = 0; i < 10; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[4].id, // Juan
-        imageUrl: imageUrls[i % imageUrls.length],
-        text:
-          i === 0
-            ? "Pre-game energy! 🔥⚡"
-            : i === 5
-              ? "Victory feels amazing! 🏆"
+    for (let i = 0; i < numStories; i++) {
+      const story = await prisma.story.create({
+        data: {
+          userId: user.id,
+          imageUrl: imageUrls[(storyIndex + i) % imageUrls.length],
+          text:
+            i === 0 || i === numStories - 1
+              ? storyTexts[(storyIndex + i) % storyTexts.length]
               : null,
-        createdAt: getDateOffset(5 + i * 0.5),
-        expiresAt: getExpiresAt(getDateOffset(5 + i * 0.5)),
-      },
-    });
-    stories.push(story);
+          createdAt: getDateOffset(hoursAgo + i * 0.3),
+          expiresAt: getExpiresAt(getDateOffset(hoursAgo + i * 0.3)),
+        },
+      });
+      stories.push(story);
+      storyIndex++;
+    }
   }
 
-  // User 5: María (13 stories)
-  for (let i = 0; i < 13; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[5].id, // María
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 6 === 0 ? storyTexts[(i + 4) % storyTexts.length] : null,
-        createdAt: getDateOffset(4 + i * 0.4),
-        expiresAt: getExpiresAt(getDateOffset(4 + i * 0.4)),
-      },
-    });
-    stories.push(story);
-  }
-
-  // User 6: Mateo (11 stories)
-  for (let i = 0; i < 11; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[6].id, // Mateo
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 4 === 0 ? storyTexts[(i + 5) % storyTexts.length] : null,
-        createdAt: getDateOffset(6 + i * 0.45),
-        expiresAt: getExpiresAt(getDateOffset(6 + i * 0.45)),
-      },
-    });
-    stories.push(story);
-  }
-
-  // User 7: Valentina (12 stories)
-  for (let i = 0; i < 12; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: players[7].id, // Valentina
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 5 === 0 ? storyTexts[(i + 6) % storyTexts.length] : null,
-        createdAt: getDateOffset(7 + i * 0.38),
-        expiresAt: getExpiresAt(getDateOffset(7 + i * 0.38)),
-      },
-    });
-    stories.push(story);
-  }
-
-  // User 8: Coach Carlos (10 stories)
-  for (let i = 0; i < 10; i++) {
-    const story = await prisma.story.create({
-      data: {
-        userId: coaches[0].id, // Coach Carlos
-        imageUrl: imageUrls[i % imageUrls.length],
-        text: i % 3 === 0 ? storyTexts[(i + 7) % storyTexts.length] : null,
-        createdAt: getDateOffset(8 + i * 0.5),
-        expiresAt: getExpiresAt(getDateOffset(8 + i * 0.5)),
-      },
-    });
-    stories.push(story);
-  }
-
-  // Text-only stories from various users
+  // Add a few text-only stories for variety
   const textOnlyStory1 = await prisma.story.create({
     data: {
-      userId: players[2].id,
+      userId: players[16].id,
       text: "Big game in 2 hours. Feeling nervous but ready! Let's do this team! 🔥",
-      createdAt: getDateOffset(3),
-      expiresAt: getExpiresAt(getDateOffset(3)),
+      createdAt: getDateOffset(5),
+      expiresAt: getExpiresAt(getDateOffset(5)),
     },
   });
   stories.push(textOnlyStory1);
 
   const textOnlyStory2 = await prisma.story.create({
     data: {
-      userId: players[8].id,
+      userId: players[17].id,
       text: "3 hour training session ✅\nIce bath ✅\nProtein shake ✅\nRecovery mode activated 💯",
-      createdAt: getDateOffset(11),
-      expiresAt: getExpiresAt(getDateOffset(11)),
+      createdAt: getDateOffset(8),
+      expiresAt: getExpiresAt(getDateOffset(8)),
     },
   });
   stories.push(textOnlyStory2);
+
+  const textOnlyStory3 = await prisma.story.create({
+    data: {
+      userId: players[18].id,
+      text: "New personal best today! 🚀⚡\nHard work pays off!",
+      createdAt: getDateOffset(12),
+      expiresAt: getExpiresAt(getDateOffset(12)),
+    },
+  });
+  stories.push(textOnlyStory3);
 
   // EXPIRED STORIES (for testing - created more than 24 hours ago)
 
