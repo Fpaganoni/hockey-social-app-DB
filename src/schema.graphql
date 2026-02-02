@@ -111,6 +111,15 @@ type Follow {
   createdAt: String!
 }
 
+type ProfileLike {
+  id: ID!
+  likerType: String!
+  likerId: String!
+  profileType: String!
+  profileId: String!
+  createdAt: String!
+}
+
 type JobOpportunity {
   id: ID!
   title: String!
@@ -304,6 +313,17 @@ type Query {
   activeStories(userId: String!): [Story!]!
   userStories(userId: String!): [Story!]!
   storyViewers(storyId: String!): [StoryView!]!
+
+  # Profile Likes
+  profileLikes(profileType: String!, profileId: String!): [ProfileLike!]!
+  profileLikesCount(profileType: String!, profileId: String!): Int!
+  hasLikedProfile(
+    likerType: String!
+    likerId: String!
+    profileType: String!
+    profileId: String!
+  ): Boolean!
+  likedProfiles(likerType: String!, likerId: String!): [ProfileLike!]!
 }
 
 type Mutation {
@@ -446,4 +466,18 @@ type Mutation {
   ): Story!
   viewStory(storyId: String!, userId: String!): StoryView!
   deleteStory(id: String!): Boolean!
+
+  # Profile Likes
+  likeProfile(
+    likerType: String!
+    likerId: String!
+    profileType: String!
+    profileId: String!
+  ): ProfileLike!
+  unlikeProfile(
+    likerType: String!
+    likerId: String!
+    profileType: String!
+    profileId: String!
+  ): Boolean!
 }

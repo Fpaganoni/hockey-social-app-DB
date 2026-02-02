@@ -222,6 +222,20 @@ model Follow {
   @@index([followingType, followingId])
 }
 
+model ProfileLike {
+  id          String       @id @default(uuid())
+  likerType   FollowerType // USER or CLUB who gives the like
+  likerId     String
+  profileType FollowerType // USER or CLUB profile being liked
+  profileId   String
+  createdAt   DateTime     @default(now())
+
+  @@unique([likerType, likerId, profileType, profileId])
+  @@index([likerType, likerId])
+  @@index([profileType, profileId])
+}
+
+
 model JobOpportunity {
   id           String       @id @default(uuid())
   title        String
