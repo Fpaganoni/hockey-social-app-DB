@@ -742,7 +742,7 @@ async function main() {
     }
   }
 
-  // Create additional random follow network
+  // Create additional random USER-to-USER follow network
   for (let i = 0; i < 60; i++) {
     const follower = allUsers[Math.floor(Math.random() * allUsers.length)];
     const following = allUsers[Math.floor(Math.random() * allUsers.length)];
@@ -764,7 +764,110 @@ async function main() {
     }
   }
 
-  console.log(`✅ Created ${followCount} follows\n`);
+  // Create CLUB-to-USER follows (clubs following players/coaches)
+  console.log("   🏑 Creating club-to-user follows...");
+  for (const club of clubs) {
+    // Each club follows 5-10 random players
+    const numPlayersToFollow = 5 + Math.floor(Math.random() * 6);
+    const shuffledPlayers = [...players].sort(() => Math.random() - 0.5);
+
+    for (
+      let i = 0;
+      i < Math.min(numPlayersToFollow, shuffledPlayers.length);
+      i++
+    ) {
+      try {
+        await prisma.follow.create({
+          data: {
+            followerType: "CLUB",
+            followerId: club.id,
+            followingType: "USER",
+            followingId: shuffledPlayers[i].id,
+          },
+        });
+        followCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+
+    // Each club follows 2-4 random coaches
+    const numCoachesToFollow = 2 + Math.floor(Math.random() * 3);
+    const shuffledCoaches = [...coaches].sort(() => Math.random() - 0.5);
+
+    for (
+      let i = 0;
+      i < Math.min(numCoachesToFollow, shuffledCoaches.length);
+      i++
+    ) {
+      try {
+        await prisma.follow.create({
+          data: {
+            followerType: "CLUB",
+            followerId: club.id,
+            followingType: "USER",
+            followingId: shuffledCoaches[i].id,
+          },
+        });
+        followCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+  }
+
+  // Create USER-to-CLUB follows (users following clubs)
+  console.log("   👤 Creating user-to-club follows...");
+  for (const user of allUsers) {
+    // Each user follows 2-5 random clubs
+    const numClubsToFollow = 2 + Math.floor(Math.random() * 4);
+    const shuffledClubs = [...clubs].sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < Math.min(numClubsToFollow, shuffledClubs.length); i++) {
+      try {
+        await prisma.follow.create({
+          data: {
+            followerType: "USER",
+            followerId: user.id,
+            followingType: "CLUB",
+            followingId: shuffledClubs[i].id,
+          },
+        });
+        followCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+  }
+
+  // Create CLUB-to-CLUB follows (clubs following other clubs)
+  console.log("   🏟️  Creating club-to-club follows...");
+  for (const club of clubs) {
+    // Each club follows 2-4 other clubs (for networking, partnerships, etc.)
+    const numClubsToFollow = 2 + Math.floor(Math.random() * 3);
+    const otherClubs = clubs.filter((c) => c.id !== club.id);
+    const shuffledClubs = otherClubs.sort(() => Math.random() - 0.5);
+
+    for (let i = 0; i < Math.min(numClubsToFollow, shuffledClubs.length); i++) {
+      try {
+        await prisma.follow.create({
+          data: {
+            followerType: "CLUB",
+            followerId: club.id,
+            followingType: "CLUB",
+            followingId: shuffledClubs[i].id,
+          },
+        });
+        followCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+  }
+
+  console.log(
+    `✅ Created ${followCount} follows (users, clubs, bidirectional)\n`,
+  );
 
   // ========== JOB OPPORTUNITIES ==========
   console.log("💼 Creating job opportunities...");
@@ -1126,7 +1229,7 @@ async function main() {
   // ========== STORIES ==========
   console.log("📸 Creating hockey stories...");
 
-  // Helper function to get time offset in hours
+  // Helper function to get time offset in hours (from NOW)
   const getDateOffset = (hoursAgo: number) => {
     const date = new Date();
     date.setHours(date.getHours() - hoursAgo);
@@ -1175,6 +1278,7 @@ async function main() {
   ];
 
   // ACTIVE STORIES - Create 4-5 stories for MANY different users (better carousel diversity)
+  // NOTE: All stories will be created within the last 23 hours to ensure they're ACTIVE
 
   // Create stories for 18+ different users (4-5 stories each)
   const usersWhoCreateStories = [
@@ -1188,7 +1292,8 @@ async function main() {
   for (let userIdx = 0; userIdx < usersWhoCreateStories.length; userIdx++) {
     const user = usersWhoCreateStories[userIdx];
     const numStories = 4 + (userIdx % 2); // Alternate between 4 and 5 stories
-    const hoursAgo = 1 + userIdx * 0.5;
+    // Distribute stories across the last 20 hours (to ensure ALL are active)
+    const hoursAgo = 1 + userIdx * 0.9; // Max ~17 hours ago for the last user
 
     for (let i = 0; i < numStories; i++) {
       const story = await prisma.story.create({
@@ -1208,7 +1313,7 @@ async function main() {
     }
   }
 
-  // Add a few text-only stories for variety
+  // Add a few text-only stories for variety (all active)
   const textOnlyStory1 = await prisma.story.create({
     data: {
       userId: players[16].id,
@@ -1239,47 +1344,8 @@ async function main() {
   });
   stories.push(textOnlyStory3);
 
-  // EXPIRED STORIES (for testing - created more than 24 hours ago)
-
-  // Expired Story 1
-  const expiredStory1 = await prisma.story.create({
-    data: {
-      userId: players[6].id,
-      imageUrl:
-        "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_match_action_1_1769710166063.png",
-      text: "Yesterday's match was intense!",
-      createdAt: getDateOffset(30),
-      expiresAt: getExpiresAt(getDateOffset(30)),
-    },
-  });
-  stories.push(expiredStory1);
-
-  // Expired Story 2
-  const expiredStory2 = await prisma.story.create({
-    data: {
-      userId: players[9].id,
-      text: "Pre-season training started 2 days ago!",
-      createdAt: getDateOffset(48),
-      expiresAt: getExpiresAt(getDateOffset(48)),
-    },
-  });
-  stories.push(expiredStory2);
-
-  // Expired Story 3
-  const expiredStory3 = await prisma.story.create({
-    data: {
-      userId: coaches[4].id,
-      imageUrl:
-        "/brain/d471a8a7-b503-40c9-bd90-8cf3f90b72ca/hockey_field_stadium_1769710214264.png",
-      text: "Stadium preparations from last week",
-      createdAt: getDateOffset(26),
-      expiresAt: getExpiresAt(getDateOffset(26)),
-    },
-  });
-  stories.push(expiredStory3);
-
   console.log(
-    `✅ Created ${stories.length} stories (${stories.filter((s) => s.expiresAt > new Date()).length} active, ${stories.filter((s) => s.expiresAt <= new Date()).length} expired)\n`,
+    `✅ Created ${stories.length} stories (all active, expires within 24h)\n`,
   );
 
   // ========== STORY VIEWS ==========
