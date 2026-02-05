@@ -19,6 +19,7 @@ async function main() {
   await prisma.jobOpportunity.deleteMany();
   await prisma.statistics.deleteMany();
   await prisma.trajectory.deleteMany();
+  await prisma.profileLike.deleteMany();
   await prisma.follow.deleteMany();
   await prisma.like.deleteMany();
   await prisma.comment.deleteMany();
@@ -869,6 +870,97 @@ async function main() {
     `✅ Created ${followCount} follows (users, clubs, bidirectional)\n`,
   );
 
+  // ========== PROFILE LIKES ==========
+  console.log("❤️ Creating profile likes...");
+
+  let profileLikeCount = 0;
+
+  // Users liking other user profiles
+  for (let i = 0; i < 100; i++) {
+    const liker = allUsers[Math.floor(Math.random() * allUsers.length)];
+    const liked = allUsers[Math.floor(Math.random() * allUsers.length)];
+
+    if (liker.id !== liked.id) {
+      try {
+        await prisma.profileLike.create({
+          data: {
+            likerType: "USER",
+            likerId: liker.id,
+            profileType: "USER",
+            profileId: liked.id,
+          },
+        });
+        profileLikeCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+  }
+
+  // Users liking club profiles
+  for (let i = 0; i < 80; i++) {
+    const liker = allUsers[Math.floor(Math.random() * allUsers.length)];
+    const likedClub = clubs[Math.floor(Math.random() * clubs.length)];
+
+    try {
+      await prisma.profileLike.create({
+        data: {
+          likerType: "USER",
+          likerId: liker.id,
+          profileType: "CLUB",
+          profileId: likedClub.id,
+        },
+      });
+      profileLikeCount++;
+    } catch (error) {
+      // Skip duplicates
+    }
+  }
+
+  // Clubs liking user profiles (scouting, recruitment interest)
+  for (let i = 0; i < 60; i++) {
+    const likerClub = clubs[Math.floor(Math.random() * clubs.length)];
+    const likedUser = allUsers[Math.floor(Math.random() * allUsers.length)];
+
+    try {
+      await prisma.profileLike.create({
+        data: {
+          likerType: "CLUB",
+          likerId: likerClub.id,
+          profileType: "USER",
+          profileId: likedUser.id,
+        },
+      });
+      profileLikeCount++;
+    } catch (error) {
+      // Skip duplicates
+    }
+  }
+
+  // Clubs liking other club profiles (partnerships, networking)
+  for (let i = 0; i < 30; i++) {
+    const likerClub = clubs[Math.floor(Math.random() * clubs.length)];
+    const likedClub = clubs[Math.floor(Math.random() * clubs.length)];
+
+    if (likerClub.id !== likedClub.id) {
+      try {
+        await prisma.profileLike.create({
+          data: {
+            likerType: "CLUB",
+            likerId: likerClub.id,
+            profileType: "CLUB",
+            profileId: likedClub.id,
+          },
+        });
+        profileLikeCount++;
+      } catch (error) {
+        // Skip duplicates
+      }
+    }
+  }
+
+  console.log(`✅ Created ${profileLikeCount} profile likes\n`);
+
   // ========== JOB OPPORTUNITIES ==========
   console.log("💼 Creating job opportunities...");
 
@@ -1392,6 +1484,7 @@ async function main() {
   console.log(`   - ${commentCount} comments`);
   console.log(`   - ${likeCount} likes`);
   console.log(`   - ${followCount} follows`);
+  console.log(`   - ${profileLikeCount} profile likes`);
   console.log(`   - ${jobData.length} job opportunities`);
   console.log(`   - ${statsCount} statistics records`);
   console.log(`   - ${trajCount} career trajectories`);
