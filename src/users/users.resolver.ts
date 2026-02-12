@@ -163,4 +163,26 @@ export class UsersResolver {
       orderBy: { order: "asc" },
     });
   }
+
+  // Field resolver for level - computed based on years of experience
+  @ResolveField()
+  async level(@Parent() user: any) {
+    const { yearsOfExperience, isVerified } = user;
+
+    // If no years of experience, return beginner
+    if (!yearsOfExperience || yearsOfExperience < 2) {
+      return "Beginner";
+    }
+
+    // Calculate level based on years of experience
+    if (yearsOfExperience >= 10) {
+      return isVerified ? "Elite Level" : "Advanced";
+    } else if (yearsOfExperience >= 5) {
+      return "Professional Level";
+    } else if (yearsOfExperience >= 2) {
+      return "Intermediate";
+    }
+
+    return "Beginner";
+  }
 }
