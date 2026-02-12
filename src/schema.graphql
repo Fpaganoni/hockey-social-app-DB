@@ -13,6 +13,7 @@ type User {
   clubId: String
   club: Club
   yearsOfExperience: Int
+  level: String!
   isVerified: Boolean!
   isEmailVerified: Boolean!
   isActive: Boolean!
@@ -324,6 +325,26 @@ type Query {
     profileId: String!
   ): Boolean!
   likedProfiles(likerType: String!, likerId: String!): [ProfileLike!]!
+
+  # Explore
+  exploreUsers(
+    role: String
+    country: String
+    position: String
+    search: String
+    limit: Int
+    offset: Int
+  ): [User!]!
+  exploreClubs(
+    country: String
+    league: String
+    search: String
+    limit: Int
+    offset: Int
+  ): [Club!]!
+  availablePositions: [String!]!
+  availableLeagues: [String!]!
+  availableCountries: [String!]!
 }
 
 type Mutation {
