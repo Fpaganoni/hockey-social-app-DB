@@ -8,8 +8,9 @@ async function main() {
 
   // Clear existing data
   console.log("🗑️  Clearing existing data...");
-  await prisma.storyView.deleteMany();
-  await prisma.story.deleteMany();
+  // NOTE: Not deleting stories/storyViews so they accumulate on each seed run
+  // await prisma.storyView.deleteMany();
+  // await prisma.story.deleteMany();
   await prisma.share.deleteMany();
   await prisma.commentLike.deleteMany();
   await prisma.message.deleteMany();
