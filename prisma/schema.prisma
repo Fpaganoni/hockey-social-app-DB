@@ -22,6 +22,7 @@ model User {
   city              String? // NEW - city of residence
   clubId            String? // NEW - current club affiliation
   yearsOfExperience Int? // NEW - years playing/coaching
+  cvUrl             String? // CV/Resume PDF URL (only for PLAYER and COACH roles)
   isVerified        Boolean  @default(false)
   isEmailVerified   Boolean  @default(false) // Email verification status
   isActive          Boolean  @default(true) // NEW - account active status

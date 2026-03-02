@@ -43,6 +43,20 @@ export class UsersService {
     });
   }
 
+  async setCv(userId: string, url: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { cvUrl: url },
+    });
+  }
+
+  async deleteCv(userId: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { cvUrl: null },
+    });
+  }
+
   async findAll() {
     return this.prisma.user.findMany({
       orderBy: {
@@ -72,6 +86,7 @@ export class UsersService {
       city?: string;
       clubId?: string;
       yearsOfExperience?: number;
+      cvUrl?: string;
     },
   ) {
     return this.prisma.user.update({

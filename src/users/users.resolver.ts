@@ -85,6 +85,33 @@ export class UsersResolver {
     }
   }
 
+  @Mutation(() => Boolean)
+  async uploadCV(
+    @Args("userId") userId: string,
+    @Args("base64") base64: string,
+  ) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new Error("User not found");
+    if (user.role !== "PLAYER" && user.role !== "COACH") {
+      throw new Error("CV upload is only available for PLAYER and COACH roles");
+    }
+    try {
+      const res = await this.cloudinary.uploadPdf(base64, "cvs");
+      await this.usersService.setCv(userId, res.secure_url || res.url);
+      return true;
+    } catch (error) {
+      throw new Error(`Failed to upload CV: ${error.message}`);
+    }
+  }
+
+  @Mutation(() => Boolean)
+  async deleteCV(@Args("userId") userId: string) {
+    const user = await this.usersService.findById(userId);
+    if (!user) throw new Error("User not found");
+    await this.usersService.deleteCv(userId);
+    return true;
+  }
+
   @Query(() => Object)
   async me(@Args("id") id: string) {
     return this.usersService.findById(id);

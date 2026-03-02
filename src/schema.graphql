@@ -13,6 +13,7 @@ type User {
   clubId: String
   club: Club
   yearsOfExperience: Int
+  cvUrl: String
   level: String!
   isVerified: Boolean!
   isEmailVerified: Boolean!
@@ -358,6 +359,8 @@ type Mutation {
   ): String!
   login(email: String!, password: String!): String!
   uploadAvatar(userId: String!, base64: String!): Boolean!
+  uploadCV(userId: String!, base64: String!): Boolean!
+  deleteCV(userId: String!): Boolean!
   updateUser(
     id: ID!
     name: String
