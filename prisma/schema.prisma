@@ -8,26 +8,35 @@ datasource db {
 }
 
 model User {
-  id                String   @id @default(uuid())
-  email             String   @unique
-  password          String
-  name              String // NEW - REQUIRED
-  username          String?  @unique
-  avatar            String? // NEW - profile picture URL
-  coverImage        String? // NEW - cover/banner image
-  bio               String? // NEW - merged from Profile
-  position          String? // NEW - playing position
-  role              Role     @default(PLAYER)
-  country           String? // NEW - country code or emoji
-  city              String? // NEW - city of residence
-  clubId            String? // NEW - current club affiliation
-  yearsOfExperience Int? // NEW - years playing/coaching
-  cvUrl             String? // CV/Resume PDF URL (only for PLAYER and COACH roles)
-  isVerified        Boolean  @default(false)
-  isEmailVerified   Boolean  @default(false) // Email verification status
-  isActive          Boolean  @default(true) // NEW - account active status
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  id                String       @id @default(uuid())
+  email             String       @unique
+  /// Nullable: OAuth users (Google, Apple) do not have a password.
+  /// SECURITY: Always check authProvider before assuming a password exists.
+  password          String?
+  name              String       // REQUIRED
+  username          String?      @unique
+  avatar            String?      // profile picture URL
+  coverImage        String?      // cover/banner image
+  bio               String?      // merged from Profile
+  position          String?      // playing position
+  role              Role         @default(PLAYER)
+  country           String?      // country code or emoji
+  city              String?      // city of residence
+  clubId            String?      // current club affiliation
+  yearsOfExperience Int?         // years playing/coaching
+  cvUrl             String?      // CV/Resume PDF URL (only for PLAYER and COACH roles)
+  isVerified        Boolean      @default(false)
+  isEmailVerified   Boolean      @default(false) // Email verification status
+  isActive          Boolean      @default(true)  // account active status
+  /// The OAuth provider used to authenticate this user.
+  /// SECURITY: Used to prevent cross-provider account collisions.
+  authProvider      AuthProvider @default(EMAIL)
+  /// The unique user ID from the OAuth provider (Google sub, Apple sub).
+  /// SECURITY: Apple only sends email on the FIRST login; socialId is the
+  /// only reliable identifier for subsequent Apple logins.
+  socialId          String?      // provider-specific unique ID
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
 
   // Relations
   club            Club?        @relation("ClubMembers", fields: [clubId], references: [id])
@@ -63,6 +72,8 @@ model User {
   @@index([username])
   @@index([clubId])
   @@index([role, isActive])
+  /// Allows fast lookup by OAuth provider + provider user ID.
+  @@index([authProvider, socialId])
 }
 
 model Club {
@@ -442,6 +453,14 @@ enum Role {
   COACH
   CLUB_ADMIN
   SUPERADMIN
+}
+
+/// Tracks which authentication provider the user registered with.
+/// EMAIL = standard email/password, GOOGLE = Google OAuth, APPLE = Apple Sign In.
+enum AuthProvider {
+  EMAIL
+  GOOGLE
+  APPLE
 }
 
 enum ClubRole {

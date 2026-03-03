@@ -29,7 +29,7 @@
     "@nestjs/platform-socket.io": "^11.1.9",
     "@nestjs/serve-static": "^5.0.4",
     "@nestjs/websockets": "^11.1.9",
-    "@prisma/client": "^7.4.2",
+    "@prisma/client": "^5.22.0",
     "algoliasearch": "^4.25.3",
     "aws-sdk": "^2.1692.0",
     "bcrypt": "^6.0.0",
@@ -41,9 +41,10 @@
     "graphql-tag": "^2.12.6",
     "graphql-upload": "^13.0.0",
     "passport": "^0.6.0",
+    "passport-apple": "^2.0.2",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
-    "prisma": "^7.4.2",
+    "prisma": "^5.22.0",
     "stripe": "^12.18.0"
   },
   "devDependencies": {
