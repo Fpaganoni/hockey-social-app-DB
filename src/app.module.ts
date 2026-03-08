@@ -17,6 +17,7 @@ import { MessagingModule } from "./messaging/messaging.module";
 import { StoriesModule } from "./stories/stories.module";
 import { ProfileLikesModule } from "./profile-likes/profile-likes.module";
 import { ExploreModule } from "./explore/explore.module";
+import { UploadsModule } from "./uploads/uploads.module";
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { ExploreModule } from "./explore/explore.module";
     StoriesModule,
     ProfileLikesModule,
     ExploreModule,
+    UploadsModule,
   ],
   providers: [PrismaService],
 })

@@ -348,6 +348,11 @@ type Query {
   availableCountries: [String!]!
 }
 
+type S3PresignedUrl {
+  uploadUrl: String!
+  finalUrl: String!
+}
+
 type Mutation {
   # Auth
   register(
@@ -373,6 +378,9 @@ type Mutation {
     clubId: ID
     yearsOfExperience: Int
   ): User!
+
+  # Uploads
+  getS3PresignedUrl(fileName: String!, contentType: String!): S3PresignedUrl!
 
   # Clubs
   createClub(
