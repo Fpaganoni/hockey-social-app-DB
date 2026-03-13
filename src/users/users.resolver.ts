@@ -86,6 +86,21 @@ export class UsersResolver {
   }
 
   @Mutation(() => Boolean)
+  async uploadCoverImage(
+    @Args("userId") userId: string,
+    @Args("base64") base64: string,
+  ) {
+    try {
+      // accepts a data-url or base64 string
+      const res = await this.cloudinary.uploadBase64(base64, "covers");
+      await this.usersService.setCoverImage(userId, res.secure_url || res.url);
+      return true;
+    } catch (error) {
+      throw new Error(`Failed to upload cover image: ${error.message}`);
+    }
+  }
+
+  @Mutation(() => Boolean)
   async uploadCV(
     @Args("userId") userId: string,
     @Args("base64") base64: string,
@@ -94,6 +109,9 @@ export class UsersResolver {
     if (!user) throw new Error("User not found");
     if (user.role !== "PLAYER" && user.role !== "COACH") {
       throw new Error("CV upload is only available for PLAYER and COACH roles");
+    }
+    if (!base64.startsWith("data:application/pdf;base64,")) {
+      throw new Error("Invalid file format. Only PDF files are allowed.");
     }
     try {
       const res = await this.cloudinary.uploadPdf(base64, "cvs");
@@ -149,6 +167,8 @@ export class UsersResolver {
     @Args("city", { nullable: true }) city?: string,
     @Args("clubId", { nullable: true }) clubId?: string,
     @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number,
+    @Args("multimedia", { type: () => [String], nullable: true }) multimedia?: string[],
+    @Args("statistics", { nullable: true }) statistics?: any,
   ) {
     return this.usersService.updateUser(id, {
       name,
@@ -160,6 +180,8 @@ export class UsersResolver {
       city,
       clubId,
       yearsOfExperience,
+      multimedia,
+      statistics,
     });
   }
 

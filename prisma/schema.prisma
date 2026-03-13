@@ -13,28 +13,29 @@ model User {
   /// Nullable: OAuth users (Google, Apple) do not have a password.
   /// SECURITY: Always check authProvider before assuming a password exists.
   password          String?
-  name              String       // REQUIRED
+  name              String // REQUIRED
   username          String?      @unique
-  avatar            String?      // profile picture URL
-  coverImage        String?      // cover/banner image
-  bio               String?      // merged from Profile
-  position          String?      // playing position
+  avatar            String? // profile picture URL
+  coverImage        String? // cover/banner image
+  bio               String? // merged from Profile
+  position          String? // playing position
   role              Role         @default(PLAYER)
-  country           String?      // country code or emoji
-  city              String?      // city of residence
-  clubId            String?      // current club affiliation
-  yearsOfExperience Int?         // years playing/coaching
-  cvUrl             String?      // CV/Resume PDF URL (only for PLAYER and COACH roles)
+  country           String? // country code or emoji
+  city              String? // city of residence
+  clubId            String? // current club affiliation
+  yearsOfExperience Int? // years playing/coaching
+  cvUrl             String? // CV/Resume PDF URL (only for PLAYER and COACH roles)
+  multimedia        String[] // NEW - Array of YouTube URLs
   isVerified        Boolean      @default(false)
   isEmailVerified   Boolean      @default(false) // Email verification status
-  isActive          Boolean      @default(true)  // account active status
+  isActive          Boolean      @default(true) // account active status
   /// The OAuth provider used to authenticate this user.
   /// SECURITY: Used to prevent cross-provider account collisions.
   authProvider      AuthProvider @default(EMAIL)
   /// The unique user ID from the OAuth provider (Google sub, Apple sub).
   /// SECURITY: Apple only sends email on the FIRST login; socialId is the
   /// only reliable identifier for subsequent Apple logins.
-  socialId          String?      // provider-specific unique ID
+  socialId          String? // provider-specific unique ID
   createdAt         DateTime     @default(now())
   updatedAt         DateTime     @updatedAt
 
@@ -246,7 +247,6 @@ model ProfileLike {
   @@index([likerType, likerId])
   @@index([profileType, profileId])
 }
-
 
 model JobOpportunity {
   id           String       @id @default(uuid())
@@ -527,4 +527,3 @@ model EmailVerificationToken {
   @@index([token])
   @@index([expiresAt])
 }
-
