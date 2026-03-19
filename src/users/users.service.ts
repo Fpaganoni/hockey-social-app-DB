@@ -35,6 +35,10 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async findByUsername(username: string) {
+    return this.prisma.user.findUnique({ where: { username } });
+  }
+
   async setAvatar(userId: string, url: string) {
     // Update directly on User now (no more Profile table)
     return this.prisma.user.update({

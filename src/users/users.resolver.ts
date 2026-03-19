@@ -145,6 +145,11 @@ export class UsersResolver {
     return this.usersService.findById(id);
   }
 
+  @Query(() => Object, { nullable: true })
+  async getUserByUsername(@Args("username") username: string) {
+    return this.usersService.findByUsername(username);
+  }
+
   @Query(() => [Object])
   async players() {
     return this.usersService.findByRole("PLAYER");
