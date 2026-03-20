@@ -35,11 +35,22 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id } });
   }
 
+  async findByUsername(username: string) {
+    return this.prisma.user.findUnique({ where: { username } });
+  }
+
   async setAvatar(userId: string, url: string) {
     // Update directly on User now (no more Profile table)
     return this.prisma.user.update({
       where: { id: userId },
       data: { avatar: url },
+    });
+  }
+
+  async setCoverImage(userId: string, url: string) {
+    return this.prisma.user.update({
+      where: { id: userId },
+      data: { coverImage: url },
     });
   }
 
@@ -87,11 +98,38 @@ export class UsersService {
       clubId?: string;
       yearsOfExperience?: number;
       cvUrl?: string;
+      multimedia?: string[];
+      statistics?: any;
     },
   ) {
-    return this.prisma.user.update({
+    const { statistics, ...userUpdateData } = data;
+
+    const updatedUser = await this.prisma.user.update({
       where: { id },
-      data,
+      data: userUpdateData,
     });
+
+    if (statistics) {
+      const careerStats = await this.prisma.statistics.findFirst({
+        where: { userId: id, season: "Career" },
+      });
+
+      if (careerStats) {
+        await this.prisma.statistics.update({
+          where: { id: careerStats.id },
+          data: statistics,
+        });
+      } else {
+        await this.prisma.statistics.create({
+          data: {
+            ...statistics,
+            userId: id,
+            season: "Career",
+          },
+        });
+      }
+    }
+
+    return updatedUser;
   }
 }

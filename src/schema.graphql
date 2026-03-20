@@ -14,6 +14,7 @@ type User {
   club: Club
   yearsOfExperience: Int
   cvUrl: String
+  multimedia: [String!]!
   level: String!
   isVerified: Boolean!
   isEmailVerified: Boolean!
@@ -172,6 +173,18 @@ type Trajectory {
   club: Club
 }
 
+input StatisticsInput {
+  gamesPlayed: Int
+  goals: Int
+  assists: Int
+  points: Int
+  wins: Int
+  losses: Int
+  draws: Int
+  cleanSheets: Int
+  saves: Int
+}
+
 type Statistics {
   id: ID!
   userId: ID!
@@ -268,6 +281,7 @@ type Query {
   # Users
   users: [User!]!
   user(id: String!): User
+  getUserByUsername(username: String!): User
   me(id: String!): User
   players: [User!]!
   coaches: [User!]!
@@ -348,6 +362,11 @@ type Query {
   availableCountries: [String!]!
 }
 
+type S3PresignedUrl {
+  uploadUrl: String!
+  finalUrl: String!
+}
+
 type Mutation {
   # Auth
   register(
@@ -359,6 +378,7 @@ type Mutation {
   ): String!
   login(email: String!, password: String!): String!
   uploadAvatar(userId: String!, base64: String!): Boolean!
+  uploadCoverImage(userId: String!, base64: String!): Boolean!
   uploadCV(userId: String!, base64: String!): Boolean!
   deleteCV(userId: String!): Boolean!
   updateUser(
@@ -372,7 +392,12 @@ type Mutation {
     city: String
     clubId: ID
     yearsOfExperience: Int
+    multimedia: [String!]
+    statistics: StatisticsInput
   ): User!
+
+  # Uploads
+  getS3PresignedUrl(fileName: String!, contentType: String!): S3PresignedUrl!
 
   # Clubs
   createClub(
