@@ -184,14 +184,14 @@ describe("UsersService", () => {
   // ── updateUser ─────────────────────────────────────────────────────────────
   describe("updateUser", () => {
     it("debería actualizar datos básicos del usuario", async () => {
-      const mockUser = { id: "user-1", bio: "Nueva bio" };
+      const mockUser = { id: "user-1", bio: "Nueva bio", cvUrl: "https://example.com/cv.pdf" };
       prisma.user.update.mockResolvedValue(mockUser);
 
-      const result = await service.updateUser("user-1", { bio: "Nueva bio" });
+      const result = await service.updateUser("user-1", { bio: "Nueva bio", cvUrl: "https://example.com/cv.pdf" });
 
       expect(prisma.user.update).toHaveBeenCalledWith({
         where: { id: "user-1" },
-        data: { bio: "Nueva bio" },
+        data: { bio: "Nueva bio", cvUrl: "https://example.com/cv.pdf" },
       });
       expect(result).toEqual(mockUser);
     });

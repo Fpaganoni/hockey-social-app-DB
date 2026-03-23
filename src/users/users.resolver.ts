@@ -174,6 +174,7 @@ export class UsersResolver {
     @Args("clubId", { nullable: true }) clubId?: string,
     @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number,
     @Args("multimedia", { type: () => [String], nullable: true }) multimedia?: string[],
+    @Args("cvUrl", { nullable: true }) cvUrl?: string,
     @Args("statistics", { nullable: true }) statistics?: any,
     @Args("trajectories", { type: () => [Object], nullable: true }) trajectories?: any[],
   ) {
@@ -190,6 +191,7 @@ export class UsersResolver {
         clubId,
         yearsOfExperience,
         multimedia,
+        cvUrl,
         statistics,
         trajectories,
       });

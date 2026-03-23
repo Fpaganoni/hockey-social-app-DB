@@ -407,6 +407,7 @@ type Mutation {
     clubId: ID
     yearsOfExperience: Int
     multimedia: [String!]
+    cvUrl: String
     statistics: StatisticsInput
     trajectories: [TrajectoryInput!]
   ): User!
