@@ -185,6 +185,19 @@ input StatisticsInput {
   saves: Int
 }
 
+input TrajectoryInput {
+  id: ID
+  clubId: ID
+  title: String!
+  organization: String!
+  period: String!
+  description: String
+  startDate: String
+  endDate: String
+  isCurrent: Boolean
+  order: Int
+}
+
 type Statistics {
   id: ID!
   userId: ID!
@@ -384,6 +397,7 @@ type Mutation {
   updateUser(
     id: ID!
     name: String
+    username: String
     bio: String
     avatar: String
     coverImage: String
@@ -394,6 +408,7 @@ type Mutation {
     yearsOfExperience: Int
     multimedia: [String!]
     statistics: StatisticsInput
+    trajectories: [TrajectoryInput!]
   ): User!
 
   # Uploads

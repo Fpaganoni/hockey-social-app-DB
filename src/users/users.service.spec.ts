@@ -15,6 +15,10 @@ const mockPrismaService = {
     create: jest.fn(),
     update: jest.fn(),
   },
+  trajectory: {
+    deleteMany: jest.fn(),
+    createMany: jest.fn(),
+  },
 };
 
 describe("UsersService", () => {
@@ -225,6 +229,25 @@ describe("UsersService", () => {
       expect(prisma.statistics.create).toHaveBeenCalledWith({
         data: { goals: 5, userId: "user-1", season: "Career" },
       });
+    });
+    it("debería actualizar trayectorias (borrado y recreado)", async () => {
+      const mockUser = { id: "user-1" };
+      prisma.user.update.mockResolvedValue(mockUser);
+      prisma.trajectory.deleteMany.mockResolvedValue({});
+      prisma.trajectory.createMany.mockResolvedValue({});
+
+      const mockTrajectories = [
+        { title: "Jugador", organization: "Club A", period: "2020-2022" },
+      ];
+
+      await service.updateUser("user-1", {
+        trajectories: mockTrajectories,
+      });
+
+      expect(prisma.trajectory.deleteMany).toHaveBeenCalledWith({
+        where: { userId: "user-1" },
+      });
+      expect(prisma.trajectory.createMany).toHaveBeenCalledTimes(1);
     });
   });
 });

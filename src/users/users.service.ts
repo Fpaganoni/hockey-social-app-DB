@@ -100,9 +100,11 @@ export class UsersService {
       cvUrl?: string;
       multimedia?: string[];
       statistics?: any;
+      username?: string;
+      trajectories?: any[];
     },
   ) {
-    const { statistics, ...userUpdateData } = data;
+    const { statistics, trajectories, ...userUpdateData } = data;
 
     const updatedUser = await this.prisma.user.update({
       where: { id },
@@ -126,6 +128,27 @@ export class UsersService {
             userId: id,
             season: "Career",
           },
+        });
+      }
+    }
+
+    if (trajectories) {
+      // Logic to sync trajectories: Full replacement for profile sync
+      await this.prisma.trajectory.deleteMany({ where: { userId: id } });
+      if (trajectories.length > 0) {
+        await this.prisma.trajectory.createMany({
+          data: trajectories.map((t) => ({
+            clubId: t.clubId || null,
+            title: t.title,
+            organization: t.organization,
+            period: t.period,
+            description: t.description || null,
+            startDate: t.startDate ? new Date(t.startDate) : null,
+            endDate: t.endDate ? new Date(t.endDate) : null,
+            isCurrent: t.isCurrent || false,
+            order: t.order || 0,
+            userId: id,
+          })),
         });
       }
     }

@@ -164,6 +164,7 @@ export class UsersResolver {
   async updateUser(
     @Args("id") id: string,
     @Args("name", { nullable: true }) name?: string,
+    @Args("username", { nullable: true }) username?: string,
     @Args("bio", { nullable: true }) bio?: string,
     @Args("avatar", { nullable: true }) avatar?: string,
     @Args("coverImage", { nullable: true }) coverImage?: string,
@@ -174,20 +175,30 @@ export class UsersResolver {
     @Args("yearsOfExperience", { nullable: true }) yearsOfExperience?: number,
     @Args("multimedia", { type: () => [String], nullable: true }) multimedia?: string[],
     @Args("statistics", { nullable: true }) statistics?: any,
+    @Args("trajectories", { type: () => [Object], nullable: true }) trajectories?: any[],
   ) {
-    return this.usersService.updateUser(id, {
-      name,
-      bio,
-      avatar,
-      coverImage,
-      position,
-      country,
-      city,
-      clubId,
-      yearsOfExperience,
-      multimedia,
-      statistics,
-    });
+    try {
+      return await this.usersService.updateUser(id, {
+        name,
+        username,
+        bio,
+        avatar,
+        coverImage,
+        position,
+        country,
+        city,
+        clubId,
+        yearsOfExperience,
+        multimedia,
+        statistics,
+        trajectories,
+      });
+    } catch (error) {
+      if (error.code === "P2002") {
+        throw new Error(`${error.meta.target[0]} already exists`);
+      }
+      throw error;
+    }
   }
 
   // Field resolver for statistics - returns aggregated career stats
