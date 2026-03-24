@@ -5,6 +5,7 @@ import {
   Query,
   ResolveField,
   Parent,
+  ID,
 } from "@nestjs/graphql";
 import { UsersService } from "./users.service";
 import { AuthService } from "../auth/auth.service";
@@ -72,7 +73,7 @@ export class UsersResolver {
 
   @Mutation(() => Boolean)
   async uploadAvatar(
-    @Args("userId") userId: string,
+    @Args("userId", { type: () => ID }) userId: string,
     @Args("base64") base64: string,
   ) {
     try {
@@ -87,7 +88,7 @@ export class UsersResolver {
 
   @Mutation(() => Boolean)
   async uploadCoverImage(
-    @Args("userId") userId: string,
+    @Args("userId", { type: () => ID }) userId: string,
     @Args("base64") base64: string,
   ) {
     try {
@@ -100,9 +101,9 @@ export class UsersResolver {
     }
   }
 
-  @Mutation(() => Boolean)
+  @Mutation(() => String)
   async uploadCV(
-    @Args("userId") userId: string,
+    @Args("userId", { type: () => ID }) userId: string,
     @Args("base64") base64: string,
   ) {
     const user = await this.usersService.findById(userId);
@@ -115,15 +116,16 @@ export class UsersResolver {
     }
     try {
       const res = await this.cloudinary.uploadPdf(base64, "cvs");
-      await this.usersService.setCv(userId, res.secure_url || res.url);
-      return true;
+      const url = res.secure_url || res.url;
+      await this.usersService.setCv(userId, url);
+      return url;
     } catch (error) {
       throw new Error(`Failed to upload CV: ${error.message}`);
     }
   }
 
   @Mutation(() => Boolean)
-  async deleteCV(@Args("userId") userId: string) {
+  async deleteCV(@Args("userId", { type: () => ID }) userId: string) {
     const user = await this.usersService.findById(userId);
     if (!user) throw new Error("User not found");
     await this.usersService.deleteCv(userId);
@@ -131,7 +133,7 @@ export class UsersResolver {
   }
 
   @Query(() => Object)
-  async me(@Args("id") id: string) {
+  async me(@Args("id", { type: () => ID }) id: string) {
     return this.usersService.findById(id);
   }
 
@@ -141,7 +143,7 @@ export class UsersResolver {
   }
 
   @Query(() => Object, { nullable: true })
-  async user(@Args("id") id: string) {
+  async user(@Args("id", { type: () => ID }) id: string) {
     return this.usersService.findById(id);
   }
 

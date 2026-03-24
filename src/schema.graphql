@@ -293,24 +293,24 @@ type PaymentIntent {
 type Query {
   # Users
   users: [User!]!
-  user(id: String!): User
+  user(id: ID!): User
   getUserByUsername(username: String!): User
-  me(id: String!): User
+  me(id: ID!): User
   players: [User!]!
   coaches: [User!]!
 
   # Clubs & Teams
   clubs: [Club!]!
-  teamsByClub(clubId: String!): [Team!]!
+  teamsByClub(clubId: ID!): [Team!]!
 
   # Posts (Social Feed)
   posts(limit: Int, offset: Int): [Post!]!
-  post(id: String!): Post
-  postsByUser(userId: String!): [Post!]!
-  postsByClub(clubId: String!): [Post!]!
+  post(id: ID!): Post
+  postsByUser(userId: ID!): [Post!]!
+  postsByClub(clubId: ID!): [Post!]!
 
   # Comments
-  comments(postId: String!): [Comment!]!
+  comments(postId: ID!): [Comment!]!
 
   # Follow
   followers(entityType: String!, entityId: String!): [Follow!]!
@@ -390,10 +390,10 @@ type Mutation {
     role: String
   ): String!
   login(email: String!, password: String!): String!
-  uploadAvatar(userId: String!, base64: String!): Boolean!
-  uploadCoverImage(userId: String!, base64: String!): Boolean!
-  uploadCV(userId: String!, base64: String!): Boolean!
-  deleteCV(userId: String!): Boolean!
+  uploadAvatar(userId: ID!, base64: String!): Boolean!
+  uploadCoverImage(userId: ID!, base64: String!): Boolean!
+  uploadCV(userId: ID!, base64: String!): String!
+  deleteCV(userId: ID!): Boolean!
   updateUser(
     id: ID!
     name: String
@@ -454,16 +454,16 @@ type Mutation {
 
   # Comments & Likes
   createComment(
-    postId: String!
-    userId: String!
+    postId: ID!
+    userId: ID!
     content: String!
-    parentCommentId: String
+    parentCommentId: ID
   ): Comment!
-  deleteComment(id: String!): Boolean!
-  likeComment(commentId: String!, userId: String!): CommentLike!
-  unlikeComment(commentId: String!, userId: String!): Boolean!
-  likePost(postId: String!, userId: String!): Like!
-  unlikePost(postId: String!, userId: String!): Boolean!
+  deleteComment(id: ID!): Boolean!
+  likeComment(commentId: ID!, userId: ID!): CommentLike!
+  unlikeComment(commentId: ID!, userId: ID!): Boolean!
+  likePost(postId: ID!, userId: ID!): Like!
+  unlikePost(postId: ID!, userId: ID!): Boolean!
 
   # Follow
   follow(

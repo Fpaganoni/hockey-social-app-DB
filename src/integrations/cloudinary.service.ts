@@ -15,11 +15,24 @@ export class CloudinaryService {
   }
 
   async uploadPdf(base64: string, folder = "cvs") {
-    const result = await cloudinary.uploader.upload(base64, {
-      folder,
-      resource_type: "raw", // required for non-image files like PDFs
-      format: "pdf",
+    const base64Data = base64.replace(
+      /^data:application\/[a-zA-Z0-9.-]+;base64,/,
+      "",
+    );
+    const buffer = Buffer.from(base64Data, "base64");
+
+    return new Promise<any>((resolve, reject) => {
+      const stream = cloudinary.uploader.upload_stream(
+        { folder, resource_type: "auto", format: "pdf" },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        },
+      );
+      stream.end(buffer);
     });
-    return result;
   }
 }

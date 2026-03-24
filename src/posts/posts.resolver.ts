@@ -5,6 +5,7 @@ import {
   Args,
   ResolveField,
   Parent,
+  ID,
 } from "@nestjs/graphql";
 import { PostsService } from "./posts.service";
 
@@ -21,25 +22,25 @@ export class PostsResolver {
   }
 
   @Query(() => Object, { nullable: true })
-  async post(@Args("id") id: string) {
+  async post(@Args("id", { type: () => ID }) id: string) {
     return this.postsService.findById(id);
   }
 
   @Query(() => [Object])
-  async postsByUser(@Args("userId") userId: string) {
+  async postsByUser(@Args("userId", { type: () => ID }) userId: string) {
     return this.postsService.findByUser(userId);
   }
 
   @Query(() => [Object])
-  async postsByClub(@Args("clubId") clubId: string) {
+  async postsByClub(@Args("clubId", { type: () => ID }) clubId: string) {
     return this.postsService.findByClub(clubId);
   }
 
   @Mutation(() => Object)
   async createPost(
     @Args("content") content: string,
-    @Args("userId") userId: string,
-    @Args("clubId", { nullable: true }) clubId?: string,
+    @Args("userId", { type: () => ID }) userId: string,
+    @Args("clubId", { type: () => ID, nullable: true }) clubId?: string,
     @Args("imageUrl", { nullable: true }) imageUrl?: string,
     @Args({ name: "images", type: () => [String], nullable: true })
     images?: string[],
@@ -61,7 +62,7 @@ export class PostsResolver {
 
   @Mutation(() => Object)
   async updatePost(
-    @Args("id") id: string,
+    @Args("id", { type: () => ID }) id: string,
     @Args("content", { nullable: true }) content?: string,
     @Args("imageUrl", { nullable: true }) imageUrl?: string,
     @Args({ name: "images", type: () => [String], nullable: true })
@@ -81,22 +82,22 @@ export class PostsResolver {
   }
 
   @Mutation(() => Boolean)
-  async deletePost(@Args("id") id: string) {
+  async deletePost(@Args("id", { type: () => ID }) id: string) {
     return this.postsService.delete(id);
   }
 
   // Comments
   @Query(() => [Object])
-  async comments(@Args("postId") postId: string) {
+  async comments(@Args("postId", { type: () => ID }) postId: string) {
     return this.postsService.getComments(postId);
   }
 
   @Mutation(() => Object)
   async createComment(
-    @Args("postId") postId: string,
-    @Args("userId") userId: string,
+    @Args("postId", { type: () => ID }) postId: string,
+    @Args("userId", { type: () => ID }) userId: string,
     @Args("content") content: string,
-    @Args("parentCommentId", { nullable: true }) parentCommentId?: string
+    @Args("parentCommentId", { type: () => ID, nullable: true }) parentCommentId?: string
   ) {
     return this.postsService.createComment(
       postId,
@@ -107,25 +108,41 @@ export class PostsResolver {
   }
 
   @Mutation(() => Boolean)
-  async deleteComment(@Args("id") id: string) {
+  async deleteComment(@Args("id", { type: () => ID }) id: string) {
     return this.postsService.deleteComment(id);
   }
 
   // Likes
   @Mutation(() => Object)
   async likePost(
-    @Args("postId") postId: string,
-    @Args("userId") userId: string
+    @Args("postId", { type: () => ID }) postId: string,
+    @Args("userId", { type: () => ID }) userId: string
   ) {
     return this.postsService.likePost(postId, userId);
   }
 
   @Mutation(() => Boolean)
   async unlikePost(
-    @Args("postId") postId: string,
-    @Args("userId") userId: string
+    @Args("postId", { type: () => ID }) postId: string,
+    @Args("userId", { type: () => ID }) userId: string
   ) {
     return this.postsService.unlikePost(postId, userId);
+  }
+
+  @Mutation(() => Object)
+  async likeComment(
+    @Args("commentId", { type: () => ID }) commentId: string,
+    @Args("userId", { type: () => ID }) userId: string
+  ) {
+    return this.postsService.likeComment(commentId, userId);
+  }
+
+  @Mutation(() => Boolean)
+  async unlikeComment(
+    @Args("commentId", { type: () => ID }) commentId: string,
+    @Args("userId", { type: () => ID }) userId: string
+  ) {
+    return this.postsService.unlikeComment(commentId, userId);
   }
 
   // Field resolvers
