@@ -75,6 +75,11 @@ model User {
   @@index([role, isActive])
   /// Allows fast lookup by OAuth provider + provider user ID.
   @@index([authProvider, socialId])
+  
+  // Talent Search Indexes (Critical for Performance)
+  @@index([role, position])
+  @@index([country, city])
+  @@index([role, country, city, position])
 }
 
 model Club {
