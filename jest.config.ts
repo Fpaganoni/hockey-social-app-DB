@@ -14,8 +14,8 @@ const config: Config = {
     "/node_modules/",
     "\\.module\\.ts$",
     "main\\.ts$",
-    "\\.resolver\\.ts$",
   ],
+  testPathIgnorePatterns: ["/node_modules/", "/dist/"],
 };
 
 export default config;
