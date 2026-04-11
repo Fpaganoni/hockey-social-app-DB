@@ -35,9 +35,8 @@ jobs:
     - name: Generate Prisma Client Types
       run: pnpm prisma generate
 
-    - name: Run Unit Tests
-      run: pnpm run test
-      continue-on-error: true # Permite pasar si aun no hay test sanitarios configurados por completo
+    - name: Run Unit Tests with Coverage
+      run: pnpm run test:cov
 
     - name: Compile Application (Build)
       run: pnpm run build
