@@ -12,6 +12,9 @@ const mockPrismaService = {
     create: jest.fn(),
     update: jest.fn(),
   },
+  user: {
+    findUnique: jest.fn(),
+  },
 };
 
 describe("ClubsService", () => {
@@ -47,24 +50,37 @@ describe("ClubsService", () => {
   // ── create ────────────────────────────────────────────────────────────────
   describe("create", () => {
     it("should create a club with required fields", async () => {
-      const input = { name: "HC Madrid", city: "Madrid", country: "Spain" };
+      const input = { name: "HC Madrid", city: "Madrid", country: "Spain", adminId: "admin-1" };
       const mockClub = { id: "club-2", ...input };
+      const mockAdmin = { id: "admin-1", role: "CLUB_ADMIN" };
+
+      // Mock user lookup for validation
+      prisma.user.findUnique.mockResolvedValue(mockAdmin);
       prisma.club.create.mockResolvedValue(mockClub);
 
       const result = await service.create(input);
 
-      expect(prisma.club.create).toHaveBeenCalledWith({ data: input });
+      expect(prisma.user.findUnique).toHaveBeenCalledWith({ where: { id: "admin-1" } });
+      expect(prisma.club.create).toHaveBeenCalledWith({
+        data: {
+          name: input.name,
+          city: input.city,
+          country: input.country,
+          adminId: input.adminId,
+          benefits: [],
+        },
+        include: { admin: true },
+      });
       expect(result).toEqual(mockClub);
     });
 
-    it("should create a club with optional location", async () => {
-      const input = { name: "HC Valencia", city: "Valencia", country: "Spain", location: "Polideportivo Norte" };
-      prisma.club.create.mockResolvedValue({ id: "club-3", ...input });
+    it("should create a club with optional location and throw if not admin", async () => {
+      const input = { name: "HC Valencia", city: "Valencia", country: "Spain", adminId: "admin-2", location: "Polideportivo Norte" };
+      const mockAdmin = { id: "admin-2", role: "PLAYER" };
 
-      await service.create(input);
+      prisma.user.findUnique.mockResolvedValue(mockAdmin);
 
-      const callData = prisma.club.create.mock.calls[0][0].data;
-      expect(callData.location).toBe("Polideportivo Norte");
+      await expect(service.create(input)).rejects.toThrow("must have the CLUB_ADMIN role");
     });
   });
 

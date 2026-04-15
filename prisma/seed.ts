@@ -50,6 +50,7 @@ async function main() {
         bio: "Excellence in field hockey since 1929",
         logo: "https://logo.clearbit.com/clubdecampo.es",
         isVerified: true,
+        benefits: ["Professional Coaching", "International Tours", "Full Medical Support", "Sponsorship Opportunities"],
       },
     }),
     prisma.club.create({
@@ -64,6 +65,7 @@ async function main() {
         bio: "Tradition and excellence in field hockey",
         logo: "https://logo.clearbit.com/rcpolo.com",
         isVerified: true,
+        benefits: ["Elite Training Facilities", "Gym Access", "Player Networking", "High Performance Center"],
       },
     }),
     prisma.club.create({
@@ -74,6 +76,7 @@ async function main() {
         league: "División de Honor",
         foundedYear: 1942,
         isVerified: true,
+        benefits: ["Swimming Pool", "Social Events", "Tennis Courts"],
       },
     }),
     prisma.club.create({
@@ -85,6 +88,7 @@ async function main() {
         foundedYear: 1952,
         description: "European champion field hockey club",
         isVerified: true,
+        benefits: ["Youth Academy", "Video Analysis", "Nutrition Planning"],
       },
     }),
     prisma.club.create({
@@ -95,6 +99,7 @@ async function main() {
         league: "División de Honor",
         foundedYear: 1952,
         isVerified: true,
+        benefits: ["Indoor Hockey Pitch", "Summer Camps", "Psychological Support"],
       },
     }),
     // Argentinian field hockey clubs
@@ -107,6 +112,7 @@ async function main() {
         foundedYear: 1902,
         description: "Historic Argentine field hockey powerhouse",
         isVerified: true,
+        benefits: ["Professional Scout Access", "Career Mentoring", "Physiotherapy"],
       },
     }),
     prisma.club.create({
@@ -117,6 +123,7 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1896,
         isVerified: true,
+        benefits: ["Education Scholarships", "Language Classes", "Free Equipment"],
       },
     }),
     prisma.club.create({
@@ -128,6 +135,7 @@ async function main() {
         foundedYear: 1880,
         description: "One of Argentina's oldest sports clubs",
         isVerified: true,
+        benefits: ["Multi-sport Facilities", "Historical Museum", "Competitive Leagues"],
       },
     }),
     prisma.club.create({
@@ -138,6 +146,7 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1900,
         isVerified: false,
+        benefits: ["Cultural Exchange", "Family Memberships", "Discounts on Gear"],
       },
     }),
     prisma.club.create({
@@ -148,6 +157,7 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1891,
         isVerified: true,
+        benefits: ["Grass Fields", "Syntetic Pitches", "Personal Training"],
       },
     }),
     // International clubs
@@ -159,6 +169,7 @@ async function main() {
         league: "Hoofdklasse",
         foundedYear: 1925,
         isVerified: true,
+        benefits: ["International Exposure", "Sponsorship Deals", "Top-tier Competition"],
       },
     }),
     prisma.club.create({
@@ -169,6 +180,7 @@ async function main() {
         league: "Hoofdklasse",
         foundedYear: 1892,
         isVerified: true,
+        benefits: ["Elite Hockey Network", "Career Opportunities", "Housing Support"],
       },
     }),
   ]);
@@ -519,6 +531,63 @@ async function main() {
   );
 
   console.log(`✅ Created ${coaches.length} coaches\n`);
+
+  // ========== CLUB ADMINS ==========
+  console.log("🔑 Creating club admin users...");
+
+  const clubAdminData = [
+    // Spanish clubs admins
+    { username: "admin_campo_madrid",   email: "admin.campomadrid@hockey-test.com",   name: "Antonio López",     country: "🇪🇸", city: "Madrid" },
+    { username: "admin_polo_barcelona", email: "admin.polobarcelona@hockey-test.com", name: "Marta Soler",       country: "🇪🇸", city: "Barcelona" },
+    { username: "admin_real_polo",      email: "admin.realpolo@hockey-test.com",       name: "Jordi Puig",        country: "🇪🇸", city: "Barcelona" },
+    { username: "admin_terrassa",       email: "admin.terrassa@hockey-test.com",       name: "Núria Casas",       country: "🇪🇸", city: "Terrassa" },
+    { username: "admin_atletic_terrassa", email: "admin.atleticterrassa@hockey-test.com", name: "Pau Martínez",  country: "🇪🇸", city: "Terrassa" },
+    // Argentinian clubs admins
+    { username: "admin_san_isidro",     email: "admin.sanisidro@hockey-test.com",      name: "Gustavo Pérez",    country: "🇦🇷", city: "Buenos Aires" },
+    { username: "admin_belgrano",       email: "admin.belgrano@hockey-test.com",        name: "Florencia Ríos",   country: "🇦🇷", city: "Buenos Aires" },
+    { username: "admin_gimnasia",       email: "admin.gimnasia@hockey-test.com",        name: "Hernán Soria",     country: "🇦🇷", city: "Buenos Aires" },
+    { username: "admin_italiano",       email: "admin.italiano@hockey-test.com",        name: "Silvana Gallo",    country: "🇦🇷", city: "Buenos Aires" },
+    { username: "admin_lomas",          email: "admin.lomas@hockey-test.com",           name: "Eduardo Bravo",    country: "🇦🇷", city: "Lomas de Zamora" },
+    // International clubs admins
+    { username: "admin_rotterdam",      email: "admin.rotterdam@hockey-test.com",       name: "Lars van Dijk",    country: "🇳🇱", city: "Rotterdam" },
+    { username: "admin_amsterdam",      email: "admin.amsterdam@hockey-test.com",       name: "Sophie de Boer",   country: "🇳🇱", city: "Amsterdam" },
+  ];
+
+  const clubAdmins = await Promise.all(
+    clubAdminData.map((admin, index) =>
+      prisma.user.create({
+        data: {
+          email: admin.email,
+          username: admin.username,
+          name: admin.name,
+          password: hashedPassword,
+          role: "CLUB_ADMIN",
+          bio: `Club Administrator with passion for field hockey. Managing and growing the club every day! 🏑`,
+          avatar: `https://randomuser.me/api/portraits/men/${50 + index}.jpg`,
+          country: admin.country,
+          city: admin.city,
+          isVerified: true,
+          isEmailVerified: true,
+        },
+      })
+    )
+  );
+
+  console.log(`✅ Created ${clubAdmins.length} club admins\n`);
+
+  // ========== ASSIGN ADMINS TO CLUBS ==========
+  console.log("🔗 Assigning admins to clubs...");
+
+  await Promise.all(
+    clubs.map((club, index) =>
+      prisma.club.update({
+        where: { id: club.id },
+        data: { adminId: clubAdmins[index].id },
+      })
+    )
+  );
+
+  console.log(`✅ Each club now has a dedicated CLUB_ADMIN\n`);
 
   // ========== POSTS ==========
   console.log("📝 Creating field hockey posts...");
@@ -1479,6 +1548,7 @@ async function main() {
   console.log("🎉 Database seeded successfully!\n");
   console.log("📊 Summary:");
   console.log(`   - ${clubs.length} clubs`);
+  console.log(`   - ${clubAdmins.length} club admins`);
   console.log(`   - ${players.length} players`);
   console.log(`   - ${coaches.length} coaches`);
   console.log(`   - ${posts.length} posts`);

@@ -40,6 +40,9 @@ type Club {
   phone: String
   website: String
   isVerified: Boolean!
+  benefits: [String!]!
+  adminId: ID
+  admin: User
   createdAt: String!
   updatedAt: String!
 }
@@ -290,6 +293,23 @@ type PaymentIntent {
   clientSecret: String
 }
 
+"""A view that pairs each Club with its CLUB_ADMIN user."""
+type ClubAdminView {
+  clubId: ID!
+  clubName: String!
+  clubCity: String!
+  clubCountry: String!
+  clubLeague: String
+  clubIsVerified: Boolean!
+  adminId: ID
+  adminName: String
+  adminUsername: String
+  adminAvatar: String
+  adminEmail: String
+  adminCountry: String
+  adminCity: String
+}
+
 type Query {
   # Users
   users: [User!]!
@@ -301,6 +321,7 @@ type Query {
 
   # Clubs & Teams
   clubs: [Club!]!
+  clubAdmins: [ClubAdminView!]!
   teamsByClub(clubId: ID!): [Team!]!
 
   # Posts (Social Feed)
@@ -420,7 +441,9 @@ type Mutation {
     name: String!
     city: String!
     country: String!
+    adminId: ID!
     location: String
+    benefits: [String!]
   ): Club!
   createTeam(clubId: String!, name: String!, category: String!): Team!
   invitePlayerToClub(

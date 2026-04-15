@@ -14,14 +14,22 @@ export class ClubsResolver {
     return this.clubsService.findAll();
   }
 
+  /** Returns a flat view of every club paired with its CLUB_ADMIN user. */
+  @Query()
+  clubAdmins() {
+    return this.clubsService.getClubAdmins();
+  }
+
   @Mutation()
-  createClub(
+  async createClub(
     @Args("name") name: string,
     @Args("city") city: string,
     @Args("country") country: string,
-    @Args("location", { nullable: true }) location?: string
+    @Args("adminId") adminId: string,
+    @Args("location", { nullable: true }) location?: string,
+    @Args("benefits", { type: () => [String], nullable: true }) benefits?: string[]
   ) {
-    return this.clubsService.create({ name, city, country, location });
+    return this.clubsService.create({ name, city, country, adminId, location, benefits });
   }
 
   @Mutation()
@@ -35,7 +43,6 @@ export class ClubsResolver {
       userId,
       invitedBy
     );
-    // send realtime notification to the invited user via websocket
     this.notifications.sendNotification(userId, {
       type: "INVITE",
       clubId,

@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable, BadRequestException } from "@nestjs/common";
 import { PrismaService } from "../prisma.service";
 
 @Injectable()
@@ -6,20 +6,80 @@ export class ClubsService {
   constructor(private prisma: PrismaService) {}
 
   findAll() {
-    return this.prisma.club.findMany({ include: { teams: true } });
+    return this.prisma.club.findMany({
+      include: {
+        teams: true,
+        admin: true,
+      },
+    });
   }
 
-  create(data: {
+  /**
+   * Returns a flat view pairing each Club with its CLUB_ADMIN user.
+   * Clubs without an admin are still included (adminId / admin fields will be null).
+   */
+  async getClubAdmins() {
+    const clubs = await this.prisma.club.findMany({
+      include: { admin: true },
+      orderBy: { name: "asc" },
+    });
+
+    return clubs.map((club) => ({
+      clubId: club.id,
+      clubName: club.name,
+      clubCity: club.city,
+      clubCountry: club.country,
+      clubLeague: club.league ?? null,
+      clubIsVerified: club.isVerified,
+      adminId: club.admin?.id ?? null,
+      adminName: club.admin?.name ?? null,
+      adminUsername: club.admin?.username ?? null,
+      adminAvatar: club.admin?.avatar ?? null,
+      adminEmail: club.admin?.email ?? null,
+      adminCountry: club.admin?.country ?? null,
+      adminCity: club.admin?.city ?? null,
+    }));
+  }
+
+  async create(data: {
     name: string;
     city: string;
     country: string;
+    adminId: string;
     location?: string;
+    benefits?: string[];
   }) {
-    return this.prisma.club.create({ data });
+    // Validate that the adminId corresponds to a CLUB_ADMIN user
+    const adminUser = await this.prisma.user.findUnique({
+      where: { id: data.adminId },
+    });
+
+    if (!adminUser) {
+      throw new BadRequestException(`User with id "${data.adminId}" not found.`);
+    }
+
+    if (adminUser.role !== "CLUB_ADMIN") {
+      throw new BadRequestException(
+        `User "${adminUser.name}" must have the CLUB_ADMIN role to create a club. ` +
+        `Current role: ${adminUser.role}.`
+      );
+    }
+
+    return this.prisma.club.create({
+      data: {
+        name: data.name,
+        city: data.city,
+        country: data.country,
+        adminId: data.adminId,
+        benefits: data.benefits || [],
+      },
+      include: {
+        admin: true,
+      },
+    });
   }
 
   async inviteMember(clubId: string, userId: string, invitedById: string) {
-    // Verificar que el usuario no sea ya miembro
     const existing = await this.prisma.clubMember.findFirst({
       where: { clubId, userId },
     });

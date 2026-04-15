@@ -41,6 +41,7 @@ model User {
 
   // Relations
   club            Club?        @relation("ClubMembers", fields: [clubId], references: [id])
+  adminClub       Club?        @relation("ClubAdmin") // The club this user administers (CLUB_ADMIN role)
   clubs           ClubMember[] @relation("UserClubMemberships")
   invitationsSent ClubMember[] @relation("InvitedBy")
 
@@ -85,18 +86,25 @@ model User {
 model Club {
   id          String   @id @default(uuid())
   name        String   @unique
-  logo        String? // NEW - club logo/badge URL
-  coverImage  String? // NEW - club cover image URL
-  description String? // NEW - club description/about
-  bio         String? // NEW - short club bio
-  city        String // NEW - REQUIRED - club location city
-  country     String // NEW - REQUIRED - country code or emoji
-  league      String? // NEW - league/division
-  foundedYear Int? // NEW - year club was founded
-  email       String? // NEW - club contact email
-  phone       String? // NEW - club contact phone
-  website     String? // NEW - club official website
+  logo        String? // club logo/badge URL
+  coverImage  String? // club cover image URL
+  description String? // club description/about
+  bio         String? // short club bio
+  city        String // REQUIRED - club location city
+  country     String // REQUIRED - country code or emoji
+  league      String? // league/division
+  foundedYear Int? // year club was founded
+  email       String? // club contact email
+  phone       String? // club contact phone
+  website     String? // club official website
   isVerified  Boolean  @default(false)
+  benefits    String[] @default([]) // array of strings for club benefits/perks
+
+  /// The User (with role CLUB_ADMIN) who manages this club.
+  /// A club can exist without an admin (e.g. seeded clubs), hence nullable.
+  adminId     String?  @unique
+  admin       User?    @relation("ClubAdmin", fields: [adminId], references: [id], onDelete: SetNull)
+
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
@@ -112,6 +120,7 @@ model Club {
   @@index([name])
   @@index([country, city])
   @@index([league])
+  @@index([adminId])
 }
 
 model Team {
