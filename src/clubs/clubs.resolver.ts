@@ -14,6 +14,11 @@ export class ClubsResolver {
     return this.clubsService.findAll();
   }
 
+  @Query("club")
+  club(@Args("id") id: string) {
+    return this.clubsService.findById(id);
+  }
+
   /** Returns a flat view of every club paired with its CLUB_ADMIN user. */
   @Query()
   clubAdmins() {
@@ -27,9 +32,16 @@ export class ClubsResolver {
     @Args("country") country: string,
     @Args("adminId") adminId: string,
     @Args("location", { nullable: true }) location?: string,
-    @Args("benefits", { type: () => [String], nullable: true }) benefits?: string[]
+    @Args("benefits", { type: () => [String], nullable: true }) benefits?: string[],
+    @Args("instagram", { nullable: true }) instagram?: string,
+    @Args("twitter", { nullable: true }) twitter?: string,
+    @Args("facebook", { nullable: true }) facebook?: string,
+    @Args("tiktok", { nullable: true }) tiktok?: string
   ) {
-    return this.clubsService.create({ name, city, country, adminId, location, benefits });
+    return this.clubsService.create({ 
+      name, city, country, adminId, location, benefits, 
+      instagram, twitter, facebook, tiktok 
+    });
   }
 
   @Mutation()

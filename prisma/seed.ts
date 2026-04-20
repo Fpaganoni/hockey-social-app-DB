@@ -597,19 +597,47 @@ async function main() {
 
   console.log(`✅ Created ${clubAdmins.length} club admins\n`);
 
-  // ========== ASSIGN ADMINS TO CLUBS ==========
-  console.log("🔗 Assigning admins to clubs...");
+  // ========== ASSIGN ADMINS, POPULATE CLUBS & ASSIGN MEMBERS ==========
+  console.log("🔗 Populating complete club data and assigning admins/members...");
 
   await Promise.all(
     clubs.map((club, index) =>
       prisma.club.update({
         where: { id: club.id },
-        data: { adminId: clubAdmins[index].id },
+        data: { 
+          adminId: clubAdmins[index % clubAdmins.length].id,
+          email: club.email || `contact@${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
+          phone: club.phone || `+34 600 ${Math.floor(100000 + Math.random() * 900000)}`,
+          website: club.website || `https://www.${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
+          description: club.description || `Welcome to ${club.name}, one of the premier field hockey clubs with a rich history and a passionate community.`,
+          bio: club.bio || `Official account of ${club.name}. Join us on the pitch!`,
+          league: club.league || "Primera División",
+          instagram: `https://instagram.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
+          twitter: `https://x.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
+          facebook: `https://facebook.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
+          tiktok: `https://tiktok.com/@${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
+        },
       })
     )
   );
 
-  console.log(`✅ Each club now has a dedicated CLUB_ADMIN\n`);
+  const clubMembersCreated = await Promise.all(
+    [...players, ...coaches, ...clubAdmins].map((user, index) => {
+      const club = clubs[index % clubs.length];
+      return prisma.clubMember.create({
+        data: {
+          clubId: club.id,
+          userId: user.id,
+          roleInClub: user.role === "COACH" ? "COACH" : "MEMBER",
+          status: "ACTIVE",
+          invitedById: clubAdmins[index % clubAdmins.length].id,
+        }
+      });
+    })
+  );
+
+  console.log(`✅ Each club now has a dedicated CLUB_ADMIN and fully populated data`);
+  console.log(`✅ Created ${clubMembersCreated.length} club members\n`);
 
   // ========== POSTS ==========
   console.log("📝 Creating field hockey posts...");

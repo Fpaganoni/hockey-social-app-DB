@@ -14,6 +14,29 @@ export class ClubsService {
     });
   }
 
+  async findById(id: string) {
+    const club = await this.prisma.club.findUnique({
+      where: { id },
+      include: {
+        admin: true,
+        clubMembers: {
+          include: { user: true },
+        },
+      },
+    });
+
+    if (!club) return null;
+
+    return {
+      ...club,
+      members: club.clubMembers.map((member) => ({
+        ...member,
+        role: member.roleInClub,
+        joinedAt: member.createdAt.toISOString(),
+      })),
+    };
+  }
+
   /**
    * Returns a flat view pairing each Club with its CLUB_ADMIN user.
    * Clubs without an admin are still included (adminId / admin fields will be null).
@@ -48,6 +71,10 @@ export class ClubsService {
     adminId: string;
     location?: string;
     benefits?: string[];
+    instagram?: string;
+    twitter?: string;
+    facebook?: string;
+    tiktok?: string;
   }) {
     // Validate that the adminId corresponds to a CLUB_ADMIN user
     const adminUser = await this.prisma.user.findUnique({
@@ -72,6 +99,10 @@ export class ClubsService {
         country: data.country,
         adminId: data.adminId,
         benefits: data.benefits || [],
+        instagram: data.instagram,
+        twitter: data.twitter,
+        facebook: data.facebook,
+        tiktok: data.tiktok,
       },
       include: {
         admin: true,

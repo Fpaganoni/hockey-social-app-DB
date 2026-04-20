@@ -39,10 +39,15 @@ type Club {
   email: String
   phone: String
   website: String
+  instagram: String
+  twitter: String
+  facebook: String
+  tiktok: String
   isVerified: Boolean!
   benefits: [String!]!
   adminId: ID
   admin: User
+  members: [ClubMember!]!
   createdAt: String!
   updatedAt: String!
 }
@@ -58,7 +63,10 @@ type ClubMember {
   club: Club!
   user: User!
   roleInClub: String!
+  role: String!
   status: String!
+  joinedAt: String!
+  createdAt: String!
 }
 
 type Post {
@@ -321,6 +329,7 @@ type Query {
 
   # Clubs & Teams
   clubs: [Club!]!
+  club(id: ID!): Club
   clubAdmins: [ClubAdminView!]!
   teamsByClub(clubId: ID!): [Team!]!
 
@@ -444,6 +453,10 @@ type Mutation {
     adminId: ID!
     location: String
     benefits: [String!]
+    instagram: String
+    twitter: String
+    facebook: String
+    tiktok: String
   ): Club!
   createTeam(clubId: String!, name: String!, category: String!): Team!
   invitePlayerToClub(
