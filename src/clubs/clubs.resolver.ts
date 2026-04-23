@@ -68,4 +68,12 @@ export class ClubsResolver {
   acceptMembership(@Args("membershipId") membershipId: string) {
     return this.clubsService.acceptMembership(membershipId);
   }
+
+  @Mutation()
+  requestClubVerification(
+    @Args("clubId") clubId: string,
+    @Args("documentUrl") documentUrl: string
+  ) {
+    return this.clubsService.requestVerification(clubId, documentUrl);
+  }
 }

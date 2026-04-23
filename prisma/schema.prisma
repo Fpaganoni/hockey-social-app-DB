@@ -101,7 +101,9 @@ model Club {
   twitter     String? // twitter/X handle or URL
   facebook    String? // facebook page URL
   tiktok      String? // tiktok handle or URL
-  isVerified  Boolean  @default(false)
+  isVerified         Boolean            @default(false)
+  verificationStatus VerificationStatus @default(UNVERIFIED)
+  verificationDoc    String?            // URL del documento subido para verificar
   benefits    String[] @default([]) // array of strings for club benefits/perks
 
   /// The User (with role CLUB_ADMIN) who manages this club.
@@ -490,6 +492,13 @@ enum ClubRole {
 enum MembershipStatus {
   PENDING
   ACTIVE
+  REJECTED
+}
+
+enum VerificationStatus {
+  UNVERIFIED
+  PENDING
+  VERIFIED
   REJECTED
 }
 

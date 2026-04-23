@@ -44,6 +44,8 @@ type Club {
   facebook: String
   tiktok: String
   isVerified: Boolean!
+  verificationStatus: String!
+  verificationDoc: String
   benefits: [String!]!
   adminId: ID
   admin: User
@@ -465,6 +467,7 @@ type Mutation {
     invitedBy: String!
   ): ClubMember!
   acceptMembership(membershipId: String!): ClubMember!
+  requestClubVerification(clubId: ID!, documentUrl: String!): Club!
 
   # Posts
   createPost(

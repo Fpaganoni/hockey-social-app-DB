@@ -130,4 +130,19 @@ export class ClubsService {
       data: { status: "ACTIVE" },
     });
   }
+
+  async requestVerification(clubId: string, documentUrl: string) {
+    const club = await this.prisma.club.findUnique({ where: { id: clubId } });
+    if (!club) throw new BadRequestException(`Club ${clubId} not found`);
+    if (club.isVerified) throw new BadRequestException(`Club is already verified`);
+    if (club.verificationStatus === "PENDING") throw new BadRequestException(`Verification is already pending`);
+
+    return this.prisma.club.update({
+      where: { id: clubId },
+      data: {
+        verificationStatus: "PENDING",
+        verificationDoc: documentUrl,
+      },
+    });
+  }
 }
