@@ -49,9 +49,15 @@ async function main() {
         description: "One of the most prestigious field hockey clubs in Spain",
         bio: "Excellence in field hockey since 1929",
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/ccvm_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/ccvm_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Professional Coaching", "International Tours", "Full Medical Support", "Sponsorship Opportunities"],
+        benefits: [
+          "Professional Coaching",
+          "International Tours",
+          "Full Medical Support",
+          "Sponsorship Opportunities",
+        ],
       },
     }),
     prisma.club.create({
@@ -65,9 +71,15 @@ async function main() {
           "Historic Barcelona field hockey club with multiple championships",
         bio: "Tradition and excellence in field hockey",
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/rcpolo_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/rcpolo_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Elite Training Facilities", "Gym Access", "Player Networking", "High Performance Center"],
+        benefits: [
+          "Elite Training Facilities",
+          "Gym Access",
+          "Player Networking",
+          "High Performance Center",
+        ],
       },
     }),
     prisma.club.create({
@@ -78,7 +90,8 @@ async function main() {
         league: "División de Honor",
         foundedYear: 1942,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/realclubpolo_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/realclubpolo_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1536502262293-38cffbe24cbf?w=1200&h=400&fit=crop",
         isVerified: true,
         benefits: ["Swimming Pool", "Social Events", "Tennis Courts"],
       },
@@ -92,7 +105,8 @@ async function main() {
         foundedYear: 1952,
         description: "European champion field hockey club",
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/cdterrassa_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/cdterrassa_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1451186580459-32d7a204ebf1?w=1200&h=400&fit=crop",
         isVerified: true,
         benefits: ["Youth Academy", "Video Analysis", "Nutrition Planning"],
       },
@@ -105,9 +119,14 @@ async function main() {
         league: "División de Honor",
         foundedYear: 1952,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/atleticterrassa_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/atleticterrassa_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Indoor Hockey Pitch", "Summer Camps", "Psychological Support"],
+        benefits: [
+          "Indoor Hockey Pitch",
+          "Summer Camps",
+          "Psychological Support",
+        ],
       },
     }),
     // Argentinian field hockey clubs
@@ -120,9 +139,14 @@ async function main() {
         foundedYear: 1902,
         description: "Historic Argentine field hockey powerhouse",
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/sanisidro_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/sanisidro_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Professional Scout Access", "Career Mentoring", "Physiotherapy"],
+        benefits: [
+          "Professional Scout Access",
+          "Career Mentoring",
+          "Physiotherapy",
+        ],
       },
     }),
     prisma.club.create({
@@ -133,9 +157,14 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1896,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/belgrano_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/belgrano_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1552531221-5a0d68c72660?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Education Scholarships", "Language Classes", "Free Equipment"],
+        benefits: [
+          "Education Scholarships",
+          "Language Classes",
+          "Free Equipment",
+        ],
       },
     }),
     prisma.club.create({
@@ -147,9 +176,14 @@ async function main() {
         foundedYear: 1880,
         description: "One of Argentina's oldest sports clubs",
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/gimnasia_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/gimnasia_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1505666287802-931dc83948e9?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Multi-sport Facilities", "Historical Museum", "Competitive Leagues"],
+        benefits: [
+          "Multi-sport Facilities",
+          "Historical Museum",
+          "Competitive Leagues",
+        ],
       },
     }),
     prisma.club.create({
@@ -160,9 +194,14 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1900,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/italiano_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/italiano_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1461896836934-ffe607ba8211?w=1200&h=400&fit=crop",
         isVerified: false,
-        benefits: ["Cultural Exchange", "Family Memberships", "Discounts on Gear"],
+        benefits: [
+          "Cultural Exchange",
+          "Family Memberships",
+          "Discounts on Gear",
+        ],
       },
     }),
     prisma.club.create({
@@ -173,7 +212,8 @@ async function main() {
         league: "Metropolitano A",
         foundedYear: 1891,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/lomas_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/lomas_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1517836357463-d25ddfcbf042?w=1200&h=400&fit=crop",
         isVerified: true,
         benefits: ["Grass Fields", "Syntetic Pitches", "Personal Training"],
       },
@@ -187,9 +227,14 @@ async function main() {
         league: "Hoofdklasse",
         foundedYear: 1925,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/rotterdam_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/rotterdam_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1536502262293-38cffbe24cbf?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["International Exposure", "Sponsorship Deals", "Top-tier Competition"],
+        benefits: [
+          "International Exposure",
+          "Sponsorship Deals",
+          "Top-tier Competition",
+        ],
       },
     }),
     prisma.club.create({
@@ -200,9 +245,14 @@ async function main() {
         league: "Hoofdklasse",
         foundedYear: 1892,
         logo: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/amsterdam_logo.png",
-        coverImage: "https://res.cloudinary.com/dlv9qzhzr/image/upload/hockey-connect/clubs/amsterdam_cover.jpg",
+        coverImage:
+          "https://images.unsplash.com/photo-1483389127117-b6a2102724ae?w=1200&h=400&fit=crop",
         isVerified: true,
-        benefits: ["Elite Hockey Network", "Career Opportunities", "Housing Support"],
+        benefits: [
+          "Elite Hockey Network",
+          "Career Opportunities",
+          "Housing Support",
+        ],
       },
     }),
   ]);
@@ -559,20 +609,92 @@ async function main() {
 
   const clubAdminData = [
     // Spanish clubs admins
-    { username: "admin_campo_madrid",   email: "admin.campomadrid@hockey-test.com",   name: "Antonio López",     country: "🇪🇸", city: "Madrid" },
-    { username: "admin_polo_barcelona", email: "admin.polobarcelona@hockey-test.com", name: "Marta Soler",       country: "🇪🇸", city: "Barcelona" },
-    { username: "admin_real_polo",      email: "admin.realpolo@hockey-test.com",       name: "Jordi Puig",        country: "🇪🇸", city: "Barcelona" },
-    { username: "admin_terrassa",       email: "admin.terrassa@hockey-test.com",       name: "Núria Casas",       country: "🇪🇸", city: "Terrassa" },
-    { username: "admin_atletic_terrassa", email: "admin.atleticterrassa@hockey-test.com", name: "Pau Martínez",  country: "🇪🇸", city: "Terrassa" },
+    {
+      username: "admin_campo_madrid",
+      email: "admin.campomadrid@hockey-test.com",
+      name: "Antonio López",
+      country: "🇪🇸",
+      city: "Madrid",
+    },
+    {
+      username: "admin_polo_barcelona",
+      email: "admin.polobarcelona@hockey-test.com",
+      name: "Marta Soler",
+      country: "🇪🇸",
+      city: "Barcelona",
+    },
+    {
+      username: "admin_real_polo",
+      email: "admin.realpolo@hockey-test.com",
+      name: "Jordi Puig",
+      country: "🇪🇸",
+      city: "Barcelona",
+    },
+    {
+      username: "admin_terrassa",
+      email: "admin.terrassa@hockey-test.com",
+      name: "Núria Casas",
+      country: "🇪🇸",
+      city: "Terrassa",
+    },
+    {
+      username: "admin_atletic_terrassa",
+      email: "admin.atleticterrassa@hockey-test.com",
+      name: "Pau Martínez",
+      country: "🇪🇸",
+      city: "Terrassa",
+    },
     // Argentinian clubs admins
-    { username: "admin_san_isidro",     email: "admin.sanisidro@hockey-test.com",      name: "Gustavo Pérez",    country: "🇦🇷", city: "Buenos Aires" },
-    { username: "admin_belgrano",       email: "admin.belgrano@hockey-test.com",        name: "Florencia Ríos",   country: "🇦🇷", city: "Buenos Aires" },
-    { username: "admin_gimnasia",       email: "admin.gimnasia@hockey-test.com",        name: "Hernán Soria",     country: "🇦🇷", city: "Buenos Aires" },
-    { username: "admin_italiano",       email: "admin.italiano@hockey-test.com",        name: "Silvana Gallo",    country: "🇦🇷", city: "Buenos Aires" },
-    { username: "admin_lomas",          email: "admin.lomas@hockey-test.com",           name: "Eduardo Bravo",    country: "🇦🇷", city: "Lomas de Zamora" },
+    {
+      username: "admin_san_isidro",
+      email: "admin.sanisidro@hockey-test.com",
+      name: "Gustavo Pérez",
+      country: "🇦🇷",
+      city: "Buenos Aires",
+    },
+    {
+      username: "admin_belgrano",
+      email: "admin.belgrano@hockey-test.com",
+      name: "Florencia Ríos",
+      country: "🇦🇷",
+      city: "Buenos Aires",
+    },
+    {
+      username: "admin_gimnasia",
+      email: "admin.gimnasia@hockey-test.com",
+      name: "Hernán Soria",
+      country: "🇦🇷",
+      city: "Buenos Aires",
+    },
+    {
+      username: "admin_italiano",
+      email: "admin.italiano@hockey-test.com",
+      name: "Silvana Gallo",
+      country: "🇦🇷",
+      city: "Buenos Aires",
+    },
+    {
+      username: "admin_lomas",
+      email: "admin.lomas@hockey-test.com",
+      name: "Eduardo Bravo",
+      country: "🇦🇷",
+      city: "Lomas de Zamora",
+    },
     // International clubs admins
-    { username: "admin_rotterdam",      email: "admin.rotterdam@hockey-test.com",       name: "Lars van Dijk",    country: "🇳🇱", city: "Rotterdam" },
-    { username: "admin_amsterdam",      email: "admin.amsterdam@hockey-test.com",       name: "Sophie de Boer",   country: "🇳🇱", city: "Amsterdam" },
+    {
+      username: "admin_rotterdam",
+      email: "admin.rotterdam@hockey-test.com",
+      name: "Lars van Dijk",
+      country: "🇳🇱",
+      city: "Rotterdam",
+    },
+    {
+      username: "admin_amsterdam",
+      email: "admin.amsterdam@hockey-test.com",
+      name: "Sophie de Boer",
+      country: "🇳🇱",
+      city: "Amsterdam",
+    },
   ];
 
   const clubAdmins = await Promise.all(
@@ -591,34 +713,46 @@ async function main() {
           isVerified: true,
           isEmailVerified: true,
         },
-      })
-    )
+      }),
+    ),
   );
 
   console.log(`✅ Created ${clubAdmins.length} club admins\n`);
 
   // ========== ASSIGN ADMINS, POPULATE CLUBS & ASSIGN MEMBERS ==========
-  console.log("🔗 Populating complete club data and assigning admins/members...");
+  console.log(
+    "🔗 Populating complete club data and assigning admins/members...",
+  );
 
   await Promise.all(
     clubs.map((club, index) =>
       prisma.club.update({
         where: { id: club.id },
-        data: { 
+        data: {
           adminId: clubAdmins[index % clubAdmins.length].id,
-          email: club.email || `contact@${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
-          phone: club.phone || `+34 600 ${Math.floor(100000 + Math.random() * 900000)}`,
-          website: club.website || `https://www.${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}.com`,
-          description: club.description || `Welcome to ${club.name}, one of the premier field hockey clubs with a rich history and a passionate community.`,
-          bio: club.bio || `Official account of ${club.name}. Join us on the pitch!`,
+          email:
+            club.email ||
+            `contact@${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}.com`,
+          phone:
+            club.phone ||
+            `+34 600 ${Math.floor(100000 + Math.random() * 900000)}`,
+          website:
+            club.website ||
+            `https://www.${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}.com`,
+          description:
+            club.description ||
+            `Welcome to ${club.name}, one of the premier field hockey clubs with a rich history and a passionate community.`,
+          bio:
+            club.bio ||
+            `Official account of ${club.name}. Join us on the pitch!`,
           league: club.league || "Primera División",
-          instagram: `https://instagram.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
-          twitter: `https://x.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
-          facebook: `https://facebook.com/${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
-          tiktok: `https://tiktok.com/@${club.name.replace(/[^a-zA-Z]/g, '').toLowerCase()}`,
+          instagram: `https://instagram.com/${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`,
+          twitter: `https://x.com/${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`,
+          facebook: `https://facebook.com/${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`,
+          tiktok: `https://tiktok.com/@${club.name.replace(/[^a-zA-Z]/g, "").toLowerCase()}`,
         },
-      })
-    )
+      }),
+    ),
   );
 
   const clubMembersCreated = await Promise.all(
@@ -631,12 +765,14 @@ async function main() {
           roleInClub: user.role === "COACH" ? "COACH" : "MEMBER",
           status: "ACTIVE",
           invitedById: clubAdmins[index % clubAdmins.length].id,
-        }
+        },
       });
-    })
+    }),
   );
 
-  console.log(`✅ Each club now has a dedicated CLUB_ADMIN and fully populated data`);
+  console.log(
+    `✅ Each club now has a dedicated CLUB_ADMIN and fully populated data`,
+  );
   console.log(`✅ Created ${clubMembersCreated.length} club members\n`);
 
   // ========== POSTS ==========
