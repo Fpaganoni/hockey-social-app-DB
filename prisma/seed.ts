@@ -503,7 +503,7 @@ async function main() {
           avatar: `https://randomuser.me/api/portraits/${genderPath}/${imageNumber}.jpg`,
           country: player.country,
           city: player.city,
-          yearsOfExperience: 3 + (index % 12),
+          yearsOfExperience: index % 2 === 0 ? 3 : 8, // Half Amateur (<5), half Professional (>=5)
           isVerified: index % 4 === 0,
           isEmailVerified: index % 3 === 0, // ~33% have verified emails
         },
@@ -594,7 +594,7 @@ async function main() {
           avatar: `https://randomuser.me/api/portraits/${genderPath}/${imageNumber}.jpg`,
           country: coach.country,
           city: coach.city,
-          yearsOfExperience: 10 + index * 2,
+          yearsOfExperience: 10 + index, // All coaches are Professional (>=5)
           isVerified: index % 2 === 0,
           isEmailVerified: index % 2 === 0, // 50% have verified emails
         },
@@ -710,6 +710,7 @@ async function main() {
           avatar: `https://randomuser.me/api/portraits/men/${50 + index}.jpg`,
           country: admin.country,
           city: admin.city,
+          yearsOfExperience: 15, // Club admins are Professional by default
           isVerified: true,
           isEmailVerified: true,
         },
