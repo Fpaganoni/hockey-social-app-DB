@@ -39,9 +39,13 @@ export class ExploreService {
       isActive: true, // Only show active users
     };
 
-    // Role filter (exact match — stored as Prisma enum string e.g. 'PLAYER', 'COACH')
+    // Role filter — normalize to uppercase, validate against allowed enum values
     if (role) {
-      where.role = role;
+      const normalizedRole = role.toUpperCase();
+      if (!["PLAYER", "COACH", "CLUB_ADMIN"].includes(normalizedRole)) {
+        throw new Error("Invalid role. Allowed: PLAYER, COACH, CLUB_ADMIN");
+      }
+      where.role = normalizedRole;
     }
 
     // Country filter (exact match — 2-letter ISO code e.g. 'AR', 'US')
@@ -54,9 +58,28 @@ export class ExploreService {
       where.position = { contains: position, mode: "insensitive" };
     }
 
-    // Level filter (free-text field on User, case-insensitive partial match)
+    // Level filter — `level` is computed, not stored. Map to yearsOfExperience:
+    // AMATEUR  → yearsOfExperience < 5 (or null)
+    // PROFESSIONAL → yearsOfExperience >= 5
     if (level) {
-      where.level = { contains: level, mode: "insensitive" };
+      const normalizedLevel = level.toUpperCase();
+      if (!["PROFESSIONAL", "AMATEUR"].includes(normalizedLevel)) {
+        throw new Error("Invalid level. Allowed: PROFESSIONAL, AMATEUR");
+      }
+      if (normalizedLevel === "PROFESSIONAL") {
+        where.yearsOfExperience = { gte: 5 };
+      } else {
+        // AMATEUR: null or < 5 years — use AND to not collide with search OR clause
+        where.AND = [
+          ...(where.AND ?? []),
+          {
+            OR: [
+              { yearsOfExperience: null },
+              { yearsOfExperience: { lt: 5 } },
+            ],
+          },
+        ];
+      }
     }
 
     // searchQuery: targeted search on name and username only (from Explore search bar)

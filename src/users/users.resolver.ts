@@ -233,25 +233,13 @@ export class UsersResolver {
     });
   }
 
-  // Field resolver for level - computed based on years of experience
+  // Field resolver for level - computed from yearsOfExperience
+  // PROFESSIONAL: >= 5 years | AMATEUR: < 5 years or not set
   @ResolveField()
   async level(@Parent() user: any) {
-    const { yearsOfExperience, isVerified } = user;
-
-    // If no years of experience, return beginner
-    if (!yearsOfExperience || yearsOfExperience < 2) {
-      return "Beginner";
-    }
-
-    // Calculate level based on years of experience
-    if (yearsOfExperience >= 10) {
-      return isVerified ? "Elite Level" : "Advanced";
-    } else if (yearsOfExperience >= 5) {
-      return "Professional Level";
-    } else if (yearsOfExperience >= 2) {
-      return "Intermediate";
-    }
-
-    return "Beginner";
+    const { yearsOfExperience } = user;
+    return yearsOfExperience != null && yearsOfExperience >= 5
+      ? "PROFESSIONAL"
+      : "AMATEUR";
   }
 }
