@@ -5,8 +5,12 @@ export interface ExploreFilters {
   role?: string;
   country?: string;
   position?: string;
+  level?: string;
   league?: string;
+  /** Generic search across name, username, city, bio */
   search?: string;
+  /** Focused search across name and username only */
+  searchQuery?: string;
   limit?: number;
   offset?: number;
 }
@@ -20,29 +24,49 @@ export class ExploreService {
    * Returns active users with role filtering, search, and pagination
    */
   async getExploreUsers(filters: ExploreFilters) {
-    const { role, country, position, search, limit = 50, offset = 0 } = filters;
+    const {
+      role,
+      country,
+      position,
+      level,
+      search,
+      searchQuery,
+      limit = 50,
+      offset = 0,
+    } = filters;
 
     const where: any = {
       isActive: true, // Only show active users
     };
 
-    // Role filter
+    // Role filter (exact match — stored as Prisma enum string e.g. 'PLAYER', 'COACH')
     if (role) {
       where.role = role;
     }
 
-    // Country filter
+    // Country filter (exact match — 2-letter ISO code e.g. 'AR', 'US')
     if (country) {
       where.country = country;
     }
 
-    // Position filter
+    // Position filter (free-text, case-insensitive partial match)
     if (position) {
-      where.position = position;
+      where.position = { contains: position, mode: "insensitive" };
     }
 
-    // Search filter (searches name, username, city, bio)
-    if (search) {
+    // Level filter (free-text field on User, case-insensitive partial match)
+    if (level) {
+      where.level = { contains: level, mode: "insensitive" };
+    }
+
+    // searchQuery: targeted search on name and username only (from Explore search bar)
+    if (searchQuery) {
+      where.OR = [
+        { name: { contains: searchQuery, mode: "insensitive" } },
+        { username: { contains: searchQuery, mode: "insensitive" } },
+      ];
+    } else if (search) {
+      // Legacy broader search: name, username, city, bio
       where.OR = [
         { name: { contains: search, mode: "insensitive" } },
         { username: { contains: search, mode: "insensitive" } },
