@@ -71,6 +71,10 @@ export class PostsService {
         isPinned: data.isPinned || false,
         isClubPost: !!data.clubId,
       },
+      include: {
+        user: true,
+        club: true,
+      },
     });
   }
 
