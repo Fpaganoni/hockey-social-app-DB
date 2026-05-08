@@ -1,9 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { NotificationType } from "@prisma/client";
 import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class PostsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async findAll(limit?: number, offset?: number) {
     return this.prisma.post.findMany({
@@ -122,17 +127,42 @@ export class PostsService {
     content: string,
     parentCommentId?: string
   ) {
-    return this.prisma.comment.create({
-      data: {
-        postId,
-        userId,
-        content,
-        parentCommentId,
-      },
-      include: {
-        user: true,
-      },
+    const comment = await this.prisma.comment.create({
+      data: { postId, userId, content, parentCommentId },
+      include: { user: true },
     });
+
+    if (parentCommentId) {
+      const parent = await this.prisma.comment.findUnique({
+        where: { id: parentCommentId },
+        select: { userId: true },
+      });
+      if (parent) {
+        this.eventEmitter.emit('comment.replied', {
+          actorId: userId,
+          recipientId: parent.userId,
+          type: NotificationType.REPLY_COMMENT,
+          entityId: comment.id,
+          postId,
+        });
+      }
+    } else {
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId },
+        select: { userId: true },
+      });
+      if (post) {
+        this.eventEmitter.emit('post.commented', {
+          actorId: userId,
+          recipientId: post.userId,
+          type: NotificationType.COMMENT_POST,
+          entityId: postId,
+          postId,
+        });
+      }
+    }
+
+    return comment;
   }
 
   async deleteComment(id: string) {
@@ -143,12 +173,25 @@ export class PostsService {
   // Comment Likes
   async likeComment(commentId: string, userId: string) {
     try {
-      return await this.prisma.commentLike.create({
-        data: {
-          commentId,
-          userId,
-        },
+      const like = await this.prisma.commentLike.create({
+        data: { commentId, userId },
       });
+
+      const comment = await this.prisma.comment.findUnique({
+        where: { id: commentId },
+        select: { userId: true, postId: true },
+      });
+      if (comment) {
+        this.eventEmitter.emit('comment.liked', {
+          actorId: userId,
+          recipientId: comment.userId,
+          type: NotificationType.LIKE_COMMENT,
+          entityId: commentId,
+          postId: comment.postId,
+        });
+      }
+
+      return like;
     } catch (error) {
       if (error.code === "P2002") {
         throw new Error("You already liked this comment");
@@ -206,12 +249,25 @@ export class PostsService {
 
   async likePost(postId: string, userId: string) {
     try {
-      return await this.prisma.like.create({
-        data: {
-          postId,
-          userId,
-        },
+      const like = await this.prisma.like.create({
+        data: { postId, userId },
       });
+
+      const post = await this.prisma.post.findUnique({
+        where: { id: postId },
+        select: { userId: true },
+      });
+      if (post) {
+        this.eventEmitter.emit('post.liked', {
+          actorId: userId,
+          recipientId: post.userId,
+          type: NotificationType.LIKE_POST,
+          entityId: postId,
+          postId,
+        });
+      }
+
+      return like;
     } catch (error) {
       if (error.code === "P2002") {
         throw new Error("You already liked this post");
