@@ -10,8 +10,11 @@ npx ts-node prisma/generate-stories.ts
 
 # Acciones sobre la base de datos
 
-# Repoblar: pnpm prisma:seed
+# Repoblar: 
+pnpm prisma:seed
 
-# Limpiar y Repoblar: pnpm prisma:reset
+# Limpiar y Repoblar: 
+pnpm prisma:reset
 
-# Generar Cliente: pnpm prisma:generate
+# Generar Cliente: 
+pnpm prisma:generate
