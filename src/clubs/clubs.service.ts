@@ -1,9 +1,14 @@
 import { Injectable, BadRequestException } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { NotificationType } from "@prisma/client";
 import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class ClubsService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   findAll() {
     return this.prisma.club.findMany({
@@ -119,9 +124,18 @@ export class ClubsService {
       throw new Error("User is already a member of this club");
     }
 
-    return this.prisma.clubMember.create({
+    const member = await this.prisma.clubMember.create({
       data: { clubId, userId, invitedById, status: "PENDING" },
     });
+
+    this.eventEmitter.emit('club.invite_sent', {
+      actorId: invitedById,
+      recipientId: userId,
+      type: NotificationType.CLUB_INVITE,
+      entityId: clubId,
+    });
+
+    return member;
   }
 
   async acceptMembership(membershipId: string) {

@@ -3,6 +3,7 @@ import { ServeStaticModule } from "@nestjs/serve-static";
 import { join } from "path";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { EventEmitterModule } from "@nestjs/event-emitter";
 import { GqlThrottlerGuard } from "./common/guards/gql-throttler.guard";
 import { GraphqlModule } from "./graphql.module";
 import { PrismaService } from "./prisma.service";
@@ -25,9 +26,10 @@ import { UploadsModule } from "./uploads/uploads.module";
 @Module({
   imports: [
     ThrottlerModule.forRoot([{
-      ttl: 60000, // 60 seconds (in milliseconds for latest package)
-      limit: 100, // max 100 requests per minute per IP
+      ttl: 60000,
+      limit: 100,
     }]),
+    EventEmitterModule.forRoot(),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, "..", "public"),
       serveRoot: "/",

@@ -1,9 +1,14 @@
 import { Injectable } from "@nestjs/common";
+import { EventEmitter2 } from "@nestjs/event-emitter";
+import { NotificationType } from "@prisma/client";
 import { PrismaService } from "../prisma.service";
 
 @Injectable()
 export class FollowService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private eventEmitter: EventEmitter2,
+  ) {}
 
   async follow(
     followerType: "USER" | "CLUB",
@@ -12,14 +17,20 @@ export class FollowService {
     followingId: string
   ) {
     try {
-      return await this.prisma.follow.create({
-        data: {
-          followerType,
-          followerId,
-          followingType,
-          followingId,
-        },
+      const result = await this.prisma.follow.create({
+        data: { followerType, followerId, followingType, followingId },
       });
+
+      if (followerType === "USER" && followingType === "USER") {
+        this.eventEmitter.emit('user.followed', {
+          actorId: followerId,
+          recipientId: followingId,
+          type: NotificationType.FOLLOW_USER,
+          entityId: followerId,
+        });
+      }
+
+      return result;
     } catch (error) {
       if (error.code === "P2002") {
         throw new Error("Already following");

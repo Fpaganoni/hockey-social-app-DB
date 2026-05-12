@@ -71,6 +71,10 @@ model User {
   // Email verification
   emailVerificationTokens EmailVerificationToken[] @relation("UserVerificationTokens")
 
+  // Notifications
+  notificationsReceived Notification[] @relation("NotificationsReceived")
+  notificationsSent     Notification[] @relation("NotificationsSent")
+
   @@index([email])
   @@index([username])
   @@index([clubId])
@@ -178,11 +182,12 @@ model Post {
   createdAt  DateTime   @default(now())
   updatedAt  DateTime   @updatedAt
 
-  user     User      @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
-  club     Club?     @relation("ClubPosts", fields: [clubId], references: [id], onDelete: Cascade)
-  comments Comment[]
-  likes    Like[]
-  shares   Share[]   @relation("PostShares")
+  user          User           @relation("UserPosts", fields: [userId], references: [id], onDelete: Cascade)
+  club          Club?          @relation("ClubPosts", fields: [clubId], references: [id], onDelete: Cascade)
+  comments      Comment[]
+  likes         Like[]
+  shares        Share[]        @relation("PostShares")
+  notifications Notification[]
 
   @@index([userId, createdAt])
   @@index([clubId, createdAt])
@@ -555,4 +560,34 @@ model EmailVerificationToken {
   @@index([userId])
   @@index([token])
   @@index([expiresAt])
+}
+
+enum NotificationType {
+  LIKE_POST
+  LIKE_COMMENT
+  COMMENT_POST
+  REPLY_COMMENT
+  FOLLOW_USER
+  CLUB_INVITE
+  CLUB_ACCEPT
+  JOB_APPLICATION_UPDATE
+}
+
+model Notification {
+  id          String           @id @default(uuid())
+  recipientId String
+  actorId     String
+  type        NotificationType
+  entityId    String?
+  postId      String?
+  isRead      Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+
+  recipient User  @relation("NotificationsReceived", fields: [recipientId], references: [id], onDelete: Cascade)
+  actor     User  @relation("NotificationsSent", fields: [actorId], references: [id], onDelete: Cascade)
+  post      Post? @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@index([recipientId, isRead])
+  @@index([recipientId, createdAt])
+  @@index([postId])
 }
