@@ -67,3 +67,20 @@ docker-data/
 
 # 🔹 Stripe CLI Cache (si usas stripe listen)
 .stripe/
+
+
+# OTHERS 
+.agents/
+.claude/
+API_GUIDE.md
+AUTH_GUIDE.md
+CLAUDE.md
+COMANDS.md
+FRONTEND_S3_UPLOAD_GUIDE.md
+GRAPHQL_EXAMPLES.md
+GRAPHQL_QUERIES_CLUBS.md
+MULTI_MEDIA_FEATURES.md
+PRE_LAUNCH.md
+RoadMap.md
+skills-lock.json
+test-upload.txt
